@@ -294,25 +294,33 @@ ax.net:Hook("character.create", function(client, payload)
 
     local clientData = client:GetTable()
     local maxCharacters = ax.config:Get("characters.max", 3)
+
     if ( istable(clientData.axCharacters) and #clientData.axCharacters >= maxCharacters ) then
         client:Notify(ax.localization:GetPhrase("error.character.max_reached"), "error")
         return
     end
 
-    if ax.config:Get("character_creating_cooldown") then
+    if ( ax.config:Get("character_creating_cooldown") and !client:IsAdmin() ) then
         local count = table.Count(client:GetCharacters())
-		if (!client:IsAdmin() and count != 0 ) then
 
+        if ( count > 0 ) then
             local endsAt = client.axCharCreatingCooldown or 0
-            if (endsAt > os.time()) then
+
+            if ( endsAt > os.time() ) then
                 local remaining = math.max(0, endsAt - os.time())
-				ax.util:PrintError(string.format("You must wait %s seconds before creating another character.", remaining))
+
+                client:Notify(
+                    "You must wait " .. remaining .. " seconds before creating another character.",
+                    "error"
+                )
+
                 return
             end
-    	end
-	end
+        end
+    end
 
     local try, catch = hook.Run("CanCreateCharacter", client, payload)
+
     if ( try == false ) then
         if ( isstring(catch) and #catch > 0 ) then
             client:Notify(catch, "error")
@@ -323,44 +331,69 @@ ax.net:Hook("character.create", function(client, payload)
     end
 
     local vars = {}
+
     for k, v in pairs(ax.character.vars) do
         if ( !v.validate ) then continue end
         if ( v.hide ) then continue end
 
-        -- Only include variables that can be populated during character creation
         local canPop = ax.character:CanPopulateVar(k, payload, client)
+
         if ( canPop ) then
             vars[k] = payload[k] != nil and payload[k] or NULL
         end
     end
 
     local newPayload = {}
+
     for k, v in pairs(vars) do
         local var = ax.character.vars[k]
+
         if ( !var ) then
             ax.util:PrintError("Invalid character variable '" .. k .. "' provided in payload.")
             return
         end
 
-        -- Check if this variable can be populated during character creation (server-side validation)
         local canPop, reason = ax.character:CanPopulateVar(k, payload, client)
+
         if ( !canPop ) then
-            ax.util:PrintError(("Client '%s' attempted to send data for restricted character variable '%s': %s"):format(client:SteamID64(), tostring(k), reason or "Unknown reason"))
+            ax.util:PrintError(
+                ("Client '%s' attempted to send data for restricted character variable '%s': %s"):format(
+                    client:SteamID64(),
+                    tostring(k),
+                    reason or "Unknown reason"
+                )
+            )
+
             client:Notify(reason or "Invalid character data submitted.")
             return
         end
 
         if ( var.validate ) then
             local result, err = var:validate(v, payload, client)
+
             if ( !result ) then
                 client:Notify(err or "Invalid character data submitted.")
-                ax.util:PrintWarning(("Validation failed for character variable '%s' from client '%s': %s"):format(tostring(k), client:SteamID64(), tostring(err)))
+
+                ax.util:PrintWarning(
+                    ("Validation failed for character variable '%s' from client '%s': %s"):format(
+                        tostring(k),
+                        client:SteamID64(),
+                        tostring(err)
+                    )
+                )
+
                 return
             end
 
             newPayload[k] = v
         else
-            ax.util:PrintWarning(("Character variable '%s' does not have a validation function. Accepting raw data from client '%s'."):format(tostring(k), client:SteamID64()))
+            ax.util:PrintWarning(
+                ("Character variable '%s' does not have a validation function. Accepting raw data from client '%s'."):format(
+                    tostring(k),
+                    client:SteamID64()
+                )
+            )
+
             newPayload[k] = v
         end
     end
@@ -368,10 +401,15 @@ ax.net:Hook("character.create", function(client, payload)
     newPayload.steamID64 = client:SteamID64()
     newPayload.schema = engine.ActiveGamemode()
 
-    ax.util:PrintDebug("Creating character for " .. client:SteamID64() .. " with payload: " .. util.TableToJSON(newPayload))
+    ax.util:PrintDebug(
+        "Creating character for " ..
+        client:SteamID64() ..
+        " with payload: " ..
+        util.TableToJSON(newPayload)
+    )
 
     ax.character:Create(newPayload, function(character, inventory)
-        inventory:AddReceiver( client )
+        inventory:AddReceiver(client)
 
         local bHasCharacter = client:GetCharacter()
 
@@ -390,24 +428,41 @@ ax.net:Hook("character.create", function(client, payload)
         ax.character.instances[character.id] = character
 
         ax.inventory:Sync(inventory)
+
         if ( !bHasCharacter ) then
             ax.character:Sync(client, character)
         end
 
-        ax.net:Start(client, "character.create", character.id, clientData.axCharacters)
+        ax.net:Start(
+            client,
+            "character.create",
+            character.id,
+            clientData.axCharacters
+        )
 
-        ax.util:PrintDebug("Character created for " .. client:SteamID64() .. ": " .. character:GetName())
+        ax.util:PrintDebug(
+            "Character created for " ..
+            client:SteamID64() ..
+            ": " ..
+            character:GetName()
+        )
 
-        client:Notify("You have successfully created a new character!", "success")
+        client:Notify(
+            "You have successfully created a new character!",
+            "success"
+        )
 
         local faction = ax.faction:Get(character:GetFaction())
+
         if ( istable(faction) and isfunction(faction.OnCharacterCreated) ) then
             faction:OnCharacterCreated(client, character)
+        end
 
-            if ax.config:Get("character_creating_cooldown") then
-    	    	local cd = ax.config:Get("character_creating_cooldown_time")
-            	client.axCharCreatingCooldown = os.time() + cd
-       	 	end
+        -- Start the cooldown after the character was successfully created.
+        if ( ax.config:Get("character_creating_cooldown") and !client:IsAdmin() ) then
+            local cd = ax.config:Get("character_creating_cooldown_time", 0)
+
+            client.axCharCreatingCooldown = os.time() + cd
         end
 
         hook.Run("PlayerCreatedCharacter", client, character)
