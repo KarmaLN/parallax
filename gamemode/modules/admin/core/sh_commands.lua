@@ -490,3 +490,23 @@ ax.command:Add("StopSounds", {
         end
     end
 })
+
+ax.chat:Add("admin", {
+    displayName = "Radio",
+    description = "Talk in Radio",
+    prefix = {"@", "/admin"},
+
+    OnRun = function(this, client, message)
+        local formattedMessage = ax.chat:FormatWithMarkdown(message, "ax.small")
+		local usergroupTable = ax.admin:GetUsergroup(client:GetUserGroup())
+        return usergroupTable.color, "[Staff Chat] " .. usergroupTable.name .. " | " .. client:SteamName(), ": ", formattedMessage
+    end,
+
+    CanSay = function(this, speaker, text)
+        return speaker:IsAdmin()
+    end,
+
+    CanHear = function(this, speaker, listener)
+        return listener:IsAdmin()
+    end
+})
