@@ -103,3 +103,14 @@ function MODULE:PlayerSpawnVehicle(client, model, name, vehicleTable)
 
     return true
 end
+
+--PROTECTION
+
+function MODULE:PlayerSwitchFlashlight(client, enabled)
+	if (client.axAntiSpamFlashlight or 0) > CurTime() and enabled then
+		return false
+	else
+		client.axAntiSpamFlashlight = CurTime() + 4
+		return true
+	end
+end
