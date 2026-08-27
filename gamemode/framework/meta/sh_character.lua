@@ -182,7 +182,7 @@ function character:GetBodyGroups()
     return self:GetData("bodygroups", {})
 end
 
-function CHAR:GetClassName()
+function character:GetClassName()
     local classIndex = self:GetClass()
     if ( !classIndex ) then
         return "None"
@@ -196,7 +196,7 @@ function CHAR:GetClassName()
     return classTable.name or classTable.Name or "None"
 end
 
-function CHAR:GetRankName()
+function character:GetRankName()
     local rankIndex = self:GetRank()
     if ( !rankIndex ) then
         return "None"
@@ -210,7 +210,7 @@ function CHAR:GetRankName()
     return rankTable.name or rankTable.Name or "None"
 end
 
-function CHAR:GetRankIcon()
+function character:GetRankIcon()
     local rankIndex = self:GetRank()
     if ( !rankIndex ) then
         return nil
