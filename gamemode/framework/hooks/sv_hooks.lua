@@ -694,6 +694,9 @@ function GM:GetGameDescription()
 end
 
 function GM:GetFallDamage(client, speed)
+    if ( speed > 100 ) then
+        client:SetRagdolled(true, 5)
+    end
     -- https://github.com/Facepunch/garrysmod/blob/master/garrysmod/gamemodes/base/gamemode/player.lua#L756
     return ( speed - 526.5 ) * ( 100 / 396 ) -- the Source SDK value
 end
