@@ -12,6 +12,8 @@ function MODULE:PlayerNoClip(client, desiredState)
             client:SetNoTarget(true)
             client:DrawWorldModel(false)
         end
+
+        return true
     else
         client:SetNoDraw(false)
         client:SetNotSolid(false)
@@ -21,5 +23,9 @@ function MODULE:PlayerNoClip(client, desiredState)
             client:SetNoTarget(false)
             client:DrawWorldModel(true)
         end
+
+        return true
     end
+
+    return false
 end
