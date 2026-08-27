@@ -490,3 +490,35 @@ function ax.class:Apply(client, classTable)
         character:SetModel(classTable.model)
     end
 end
+
+--- Remove weapons and items belonging to a class.
+---@realm server
+---@param client Player
+---@param class string|number|table
+function ax.class:Remove(client, class)
+    if ( !ax.util:IsValidPlayer(client) ) then return end
+
+    local classTable = istable(class) and class or self:Get(class)
+    if ( !classTable ) then return end
+
+    local character = client:GetCharacter()
+    if ( !character ) then return end
+
+    local inventory = character:GetInventory()
+
+    if ( inventory ) then
+        for _, uniqueID in ipairs(classTable.items or {}) do
+            local item = inventory:HasItem(uniqueID)
+
+            if ( item and item:GetData("classItem") ) then
+                inventory:RemoveItem(uniqueID)
+            end
+        end
+    end
+
+    for _, weapon in ipairs(classTable.weapons or {}) do
+        if ( client:HasWeapon(weapon) ) then
+            client:StripWeapon(weapon)
+        end
+    end
+end
