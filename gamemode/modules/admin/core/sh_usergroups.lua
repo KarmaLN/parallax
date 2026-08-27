@@ -584,42 +584,52 @@ function MODULE:SetSteamIDUsergroup(actor, identifier, usergroup, callback)
     return true
 end
 
-MODULE:RegisterUsergroup("user", {
+ax.admin:RegisterUsergroup("user", {
     name = "User",
     description = "Default player access.",
     level = 0,
     immunity = 0,
-    color = Color(94, 196, 110),
+    color = Color(0, 255, 150),
     bProtected = true,
     bDefault = true,
 })
 
-MODULE:RegisterUsergroup("operator", {
-    name = "Operator",
+ax.admin:RegisterUsergroup("operator", {
+    name = "Moderator",
     description = "Trusted support staff with limited elevated access.",
     level = 25,
     immunity = 25,
     inherits = "user",
-    color = Color(128, 164, 226),
+    color = Color(0, 255, 255),
 })
 
-MODULE:RegisterUsergroup("admin", {
+ax.admin:RegisterUsergroup("admin", {
     name = "Admin",
     description = "General administrator access.",
     level = 50,
     immunity = 50,
     inherits = "operator",
-    color = Color(226, 124, 96),
+    color = Color(120, 0, 255),
 })
 
-MODULE:RegisterUsergroup("superadmin", {
+ax.admin:RegisterUsergroup("superadmin", {
     name = "Super Admin",
     description = "Highest built-in administrator access.",
     level = 100,
     immunity = 100,
     inherits = "admin",
-    color = Color(203, 109, 255),
+    color = Color(255, 0, 0),
     bProtected = true,
+})
+
+ax.admin:RegisterUsergroup("owner", {
+    name = "Owner",
+    description = "Highest administrator access.",
+    level = 999,
+    immunity = 999,
+    inherits = "superadmin",
+    bProtected = true,
+    color = Color(150,0,0),
 })
 
 if ( SERVER ) then
