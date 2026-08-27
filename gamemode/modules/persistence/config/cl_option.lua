@@ -1,0 +1,5 @@
+--ax.option:Add("persistence_physgun", ax.type.bool, false, {
+    --description = "Enable/Disable Physgun interactions with persisted Props",
+	--category = "persistence",
+	--subCategory = "general",
+--})
