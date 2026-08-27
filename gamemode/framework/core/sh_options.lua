@@ -9,6 +9,107 @@
     Attribution is required. If you use or modify this file, you must retain this notice.
 ]]
 
+ax.option:Add("multicore", ax.type.bool, GetConVar("gmod_mcore_test"):GetInt() ~= 0, {
+    description = "Enable multicore rendering optimizations (gmod_mcore_test)",
+    category = "performance",
+    subCategory = "general",
+})
+
+ax.option:Add("mapspecular", ax.type.bool, GetConVar("mat_specular"):GetInt() ~= 0, {
+    description = "Toggle specular lighting on maps (mat_specular)",
+    category = "performance",
+    subCategory = "graphics",
+})
+
+ax.option:Add("mapbloomscale", ax.type.bool, GetConVar("mat_bloomscale"):GetInt() ~= 0, {
+    description = "Toggle bloom scale effect (mat_bloomscale)",
+    category = "performance",
+    subCategory = "graphics",
+})
+
+ax.option:Add("drawmodeldecals", ax.type.bool, GetConVar("r_drawmodeldecals"):GetInt() ~= 0, {
+    description = "Render decals on models (r_drawmodeldecals)",
+    category = "performance",
+    subCategory = "graphics",
+})
+
+ax.option:Add("mipmaptextures", ax.type.bool, GetConVar("mat_mipmaptextures"):GetInt() ~= 0, {
+    description = "Enable mipmapped textures (mat_mipmaptextures)",
+    category = "performance",
+    subCategory = "textures",
+})
+
+ax.option:Add("skybox", ax.type.bool, GetConVar("r_3dsky"):GetInt() ~= 0, {
+    description = "Enable 3D skybox rendering (r_3dsky)",
+    category = "performance",
+    subCategory = "graphics",
+})
+
+ax.option:Add("aiexpression", ax.type.bool, GetConVar("ai_expression_optimization"):GetInt() ~= 0, {
+    description = "Optimize AI facial expressions (ai_expression_optimization)",
+    category = "performance",
+    subCategory = "ai",
+})
+
+ax.option:Add("detaildistance", ax.type.number, GetConVar("cl_detaildist"):GetInt(), {
+    description = "Distance for detail props rendering (cl_detaildist)",
+    category = "performance",
+    subCategory = "lod",
+    min = 0,
+    max = 10000,
+})
+
+ax.option:Add("detailfade", ax.type.number, GetConVar("cl_detailfade"):GetInt(), {
+    description = "Fade distance for detail props (cl_detailfade)",
+    category = "performance",
+    subCategory = "lod",
+    min = 0,
+    max = 10000,
+})
+
+ax.option:Add("bloom", ax.type.bool, GetConVar("pp_bloom"):GetInt() ~= 0, {
+    description = "Enable bloom post-processing (pp_bloom)",
+    category = "performance",
+    subCategory = "postprocessing",
+})
+
+ax.option:Add("filterlightmaps", ax.type.bool, GetConVar("mat_filterlightmaps"):GetInt() ~= 0, {
+    description = "Smooth lightmap filtering (mat_filterlightmaps)",
+    category = "performance",
+    subCategory = "lighting",
+})
+
+ax.option:Add("filtertextures", ax.type.bool, GetConVar("mat_filtertextures"):GetInt() ~= 0, {
+    description = "Enable texture filtering (mat_filtertextures)",
+    category = "performance",
+    subCategory = "textures",
+})
+
+ax.option:Add("max_decals", ax.type.number, GetConVar("r_decals"):GetInt(), {
+    description = "Maximum world decals (r_decals)",
+    category = "performance",
+    subCategory = "decals",
+    min = 0,
+    max = 10000,
+})
+
+ax.option:Add("max_modeldecals", ax.type.number, GetConVar("r_maxmodeldecal"):GetInt(), {
+    description = "Maximum decals on models (r_maxmodeldecal)",
+    category = "performance",
+    subCategory = "decals",
+    min = 0,
+    max = 100,
+})
+
+local maxDLights = GetConVar("r_maxdlights")
+ax.option:Add("max_dynamiclights", ax.type.number, maxDLights and maxDLights:GetInt() or 32, {
+    description = "Maximum dynamic lights (r_maxdlights)",
+    category = "performance",
+    subCategory = "lighting",
+    min = 0,
+    max = 100,
+})
+
 ax.option:Add("performance.animations", ax.type.bool, true, {
     category = "interface",
     subCategory = "performance",

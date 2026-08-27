@@ -377,5 +377,32 @@ ax.localization:Register("en", {
     ["config.chatbox.recommendations.wrap_cycle"] = "Chatbox Recommendation Cycle Wrap",
 
     ["scoreboard.context.copy_steamid"] = "Copy SteamID",
-    ["scoreboard.context.view_profile"] = "View Profile"
+    ["scoreboard.context.view_profile"] = "View Profile",
+
+    -- Performance
+    ["category.performance"] = "Performance",
+    ["subcategory.general"] = "General",
+    ["subcategory.graphics"] = "Graphics",
+    ["subcategory.decals"] = "Decals",
+    ["subcategory.ai"] = "AI",
+    ["subcategory.lighting"] = "Lighting",
+    ["subcategory.lod"] = "LOD",
+    ["subcategory.postprocessing"] = "Post Processing",
+    ["subcategory.textures"] = "Textures",
+
+   	["option.multicore"] = "MultiCore",
+   	["option.mapspecular"] = "Map Specular",
+   	["option.mapbloomscale"] = "Map Bloom Scale",
+	["option.drawmodeldecals"] = "Draw Model Decals",
+   	["option.mipmaptextures"] = "MipMap Textures",
+    ["option.skybox"] = "Skybox",
+    ["option.aiexpression"] = "AI Expression",
+    ["option.detaildistance"] = "Detail Distance",
+    ["option.detailfade"] = "Detail Fade",
+    ["option.bloom"] = "Bloom",
+    ["option.filterlightmaps"] = "Filter LightMaps",
+    ["option.filtertextures"] = "Filter Textures",
+    ["option.max_decals"] = "Max Decals",
+    ["option.max_modeldecals"] = "Max ModelDecals",
+    ["option.max_dynamiclights"] = "Max DynamicLights",
 })

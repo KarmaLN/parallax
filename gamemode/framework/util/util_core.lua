@@ -818,3 +818,115 @@ if ( CLIENT ) then
         end
     end
 end
+
+function ax.util:ColorGrade(data)
+    if not data or data.value == nil then
+        return Color(255, 255, 255)
+    end
+
+    local value = data.value
+    local min = data.min or 0
+    local max = data.max or 100
+
+    if min == max then
+        return Color(255, 255, 255)
+    end
+
+    value = math.Clamp(value, min, max)
+
+    local t = (value - min) / (max - min)
+
+    -- Optional invert support
+    if data.invert then
+        t = 1 - t
+    end
+
+    local hue = t * 120 -- red → green
+    return HSVToColor(hue, 1, 1)
+end
+
+function ax.util:FormatNumber(num)
+    local scales = {
+        {10^18, "Quintillion"},
+        {10^15, "Quadrillion"},
+        {10^12, "Trillion"},
+        {10^9,  "Billion"},
+        {10^6,  "Million"},
+    }
+
+    for _, s in ipairs(scales) do
+        local div, label = s[1], s[2]
+        if num >= div or num <= -div then
+            return string.Comma(math.Round(num / div, 1)) .. " " .. label
+        end
+    end
+
+    return string.Comma(math.Round(num, 1))
+end
+
+function ax.util:FormatTime(time)
+    time = math.max(0, math.floor(tonumber(time) or 0))
+
+    local hours = math.floor(time / 3600)
+    local minutes = math.floor((time % 3600) / 60)
+    local seconds = time % 60
+
+    return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+end
+
+function ax.util:FormatTimeFancyShort(time)
+    time = math.max(0, math.floor(tonumber(time) or 0))
+
+    local days = math.floor(time / 86400)
+    local hours = math.floor((time % 86400) / 3600)
+    local minutes = math.floor((time % 3600) / 60)
+    local seconds = time % 60
+
+    local parts = {}
+
+    if days > 0 then table.insert(parts, days .. "d") end
+    if hours > 0 then table.insert(parts, hours .. "h") end
+    if minutes > 0 then table.insert(parts, minutes .. "m") end
+    if seconds > 0 or #parts == 0 then table.insert(parts, seconds .. "s") end
+
+    return table.concat(parts, " ")
+end
+
+local function plural(value, word)
+    return value .. " " .. word .. (value ~= 1 and "s" or "")
+end
+
+function ax.util:FormatTimeFancyLong(time)
+    time = math.max(0, math.floor(tonumber(time) or 0))
+
+    local days = math.floor(time / 86400)
+    local hours = math.floor((time % 86400) / 3600)
+    local minutes = math.floor((time % 3600) / 60)
+    local seconds = time % 60
+
+    local parts = {}
+
+    if days > 0 then table.insert(parts, plural(days, "day")) end
+    if hours > 0 then table.insert(parts, plural(hours, "hour")) end
+    if minutes > 0 then table.insert(parts, plural(minutes, "minute")) end
+    if seconds > 0 or #parts == 0 then
+        table.insert(parts, plural(seconds, "second"))
+    end
+
+    return table.concat(parts, ", ")
+end
+
+function ax.util:FormatTimeSmart(time)
+    if time < 3600 then
+        return ax.util:FormatTimeFancyShort(time)
+    else
+        return ax.util:FormatTimeFancyLong(time)
+    end
+end
+
+function ax.util:FormatDate(timestamp, format)
+    timestamp = tonumber(timestamp) or os.time()
+    format = format or "%Y-%m-%d" -- default: 2026-04-10
+
+    return os.date(format, timestamp)
+end
