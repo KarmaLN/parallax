@@ -816,3 +816,28 @@ widgets.RenderMe = nil
 hook.Remove("OnEntityCreated", "CreateWidgets")
 hook.Remove("PlayerTick", "TickWidgets")
 hook.Remove("EntityRemoved", "RemoveWidgets")
+
+
+ax.net:Hook("ax.RunItemAction", function(ply, payload)
+	if not ax.util:IsValidPlayer(ply) then return end
+
+    local character = ply:GetCharacter()
+    if not character then return end
+
+    local itemID = payload.itemID
+    local action = payload.action
+
+    local inventory = character:GetInventory()
+    if not inventory then return end
+
+    local item = inventory:GetItemByID(itemID)
+    if not item then return end
+
+    local itemTable = ax.item:Get(item.class)
+    if not itemTable then return end
+
+    ax.item:RunAction(ply, itemTable, action, {
+        item = itemID,
+        source = "radial_menu"
+    })
+end)
