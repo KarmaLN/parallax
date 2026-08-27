@@ -399,6 +399,52 @@ ax.command:Add("CharSetClass", {
     end
 })
 
+ax.command:Add("CharClassWhitelist", {
+    description = "Whitelist a character for a class.",
+    adminOnly = true,
+    arguments = {
+        { name = "target", type = ax.type.character },
+        { name = "class", type = ax.type.string }
+    },
+
+    OnRun = function(self, client, target, className)
+        if (not target) then return "Invalid character." end
+
+		local classTable = ax.class:Get(className)
+        if (not classTable) then return "Invalid class." end
+
+        if (target:AddClassWhitelist(classTable.id)) then
+            return ("Whitelisted %s for %s."):format(
+                target:GetName(),
+                classTable.name or classTable.id
+            )
+        end
+    end
+})
+
+ax.command:Add("CharClassUnWhitelist", {
+    description = "Un-Whitelist a character for a class.",
+    adminOnly = true,
+    arguments = {
+        { name = "target", type = ax.type.character },
+        { name = "class", type = ax.type.string }
+    },
+
+    OnRun = function(self, client, target, className)
+        if (not target) then return "Invalid character." end
+
+		local classTable = ax.class:Get(className)
+        if (not classTable) then return "Invalid class." end
+
+        if (target:RemoveClassWhitelist(classTable.id)) then
+            return ("Un-Whitelisted %s for %s."):format(
+                target:GetName(),
+                classTable.name or classTable.id
+            )
+        end
+    end
+})
+
 ax.command:Add("CharSetRank", {
     description = "Set the rank of a character.",
     adminOnly = true,
@@ -436,6 +482,7 @@ ax.command:Add("CharSetRank", {
         return "Rank set to " .. rankTable.name
     end
 })
+
 
 ax.command:Add("PlyWhitelist", {
     description = "Whitelist a player for a faction.",

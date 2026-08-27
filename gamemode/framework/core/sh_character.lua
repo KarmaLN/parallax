@@ -202,13 +202,19 @@ ax.character:RegisterVar("class", {
     fieldType = ax.type.number,
     default = 0,
     hide = true,
+
     changed = function(character, value, previousValue, isNetworked, recipients)
         local previousClass = ax.class:Get(previousValue)
-        if ( previousClass and isfunction(previousClass.OnLeave) ) then
-            previousClass:OnLeave(character, value, previousValue, isNetworked, recipients)
+        local client = character:GetOwner()
+
+        if ( previousClass and ax.util:IsValidPlayer(client) ) then
+            ax.class:Remove(client, previousClass)
+
+            if ( isfunction(previousClass.OnLeave) ) then
+                previousClass:OnLeave(character, value, previousValue, isNetworked, recipients)
+            end
         end
 
-        local client = character:GetOwner()
         if ( ax.util:IsValidPlayer(client) ) then
             hook.Run("PlayerLoadout", client)
         end
@@ -216,8 +222,13 @@ ax.character:RegisterVar("class", {
         hook.Run("OnCharacterClassChanged", character, value, previousValue, isNetworked, recipients)
 
         local classTable = ax.class:Get(value)
-        if ( classTable and isfunction(classTable.OnSet) ) then
-            classTable:OnSet(character, value, previousValue, isNetworked, recipients)
+
+        if ( classTable and ax.util:IsValidPlayer(client) ) then
+            ax.class:Apply(client, classTable)
+
+            if ( isfunction(classTable.OnSet) ) then
+                classTable:OnSet(character, value, previousValue, isNetworked, recipients)
+            end
         end
     end
 })

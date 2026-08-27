@@ -16,6 +16,60 @@ ax.class = ax.class or {}
 ax.class.instances = ax.class.instances or {}
 ax.class.stored = ax.class.stored or {}
 
+--- Registers a class definition programmatically without requiring a file.
+---@realm shared
+---@param className string The unique class identifier for the class
+---@param classTable table|nil The class definition data
+---@return table|nil # The class definition table, or nil on failure
+function ax.class:Register(className, classTable)
+    if ( !isstring(className) or className == "" ) then
+        ErrorNoHalt("[ax.class] Register called with invalid className\n")
+        return nil
+    end
+
+    if ( classTable != nil and !istable(classTable) ) then
+        ErrorNoHalt("[ax.class] Register called with invalid classTable\n")
+        return nil
+    end
+
+    classTable = classTable or {}
+
+    local existing = self.stored[className]
+    local index = (istable(existing) and existing.index) or (#self.instances + 1)
+
+    classTable.id = className
+    classTable.index = index
+
+    self.stored[className] = classTable
+    self.instances[index] = classTable
+
+    if ( isnumber(classTable.faction) ) then
+        local factionTable = ax.faction:Get(classTable.faction)
+
+        if ( istable(factionTable) ) then
+            if ( !istable(factionTable.classes) ) then
+                factionTable.classes = {}
+            end
+
+            factionTable.classes[className] = classTable
+        else
+            ax.util:PrintDebug(
+                color_warning,
+                "Class \"" .. className .. "\" uses an invalid faction ID."
+            )
+        end
+    end
+
+    ax.util:PrintDebug(
+        color_success,
+        "CLASS \"" ..
+        (classTable.Name or classTable.name or classTable.id) ..
+        "\" registered programmatically."
+    )
+
+    return classTable
+end
+
 --- Initialize the class system by loading all class files. Automatically includes classes from framework, modules, and schema directories. Called during framework boot to set up all available classes.
 ---@realm shared
 ---@usage ax.class:Initialize()
@@ -116,6 +170,8 @@ function ax.class:Include(directory, timeFilter)
     return true
 end
 
+
+
 --- Get a class by its identifier. Supports lookup by unique ID string, index number, name, or partial name matching.
 ---@realm shared
 ---@param identifier string|number The class ID, index, or name to search for
@@ -150,7 +206,23 @@ end
 ---@usage local canBecome, reason = ax.class:CanBecome("security", player)
 function ax.class:CanBecome(class, client)
     local classTable = self:Get(class)
+
+    if ( !classTable ) then
+        return false, "Invalid class."
+    end
+
+    local char = client:GetCharacter()
+
+    if ( !char ) then
+        return false, "No character loaded"
+    end
+
+    if ( !char:HasClassWhitelist(classTable) ) then
+        return false, "You are not whitelisted for this class"
+    end
+
     local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
+
     if ( try == false and isstring(catch) and #catch > 0 ) then
         client:Notify(catch, "error")
         return false, catch
@@ -158,6 +230,7 @@ function ax.class:CanBecome(class, client)
 
     if ( isfunction(classTable.CanBecome) ) then
         try, catch = classTable:CanBecome(client)
+
         if ( try == false and isstring(catch) and #catch > 0 ) then
             client:Notify(catch, "error")
             return false, catch
@@ -231,4 +304,189 @@ function ax.class:HasAny(class, classes)
     end
 
     return false
+end
+
+local CHAR = ax.character.meta
+
+if ( SERVER ) then
+    function CHAR:AddClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = true
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+
+    function CHAR:RemoveClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( !data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = nil
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+end
+
+function CHAR:HasClassWhitelist(class)
+    local classTable = istable(class) and class or ax.class:Get(class)
+
+    if ( !classTable or !classTable.id ) then
+        return false
+    end
+
+    if ( classTable.isWhitelist ) then
+        local data = self:GetData("classWhitelist", {})
+
+        return data[classTable.id] == true
+    end
+
+    return true
+end
+
+----------------------------------------------------------------------
+-- Class Whitelist
+----------------------------------------------------------------------
+
+local CHAR = ax.character.meta
+
+if ( SERVER ) then
+    function CHAR:AddClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = true
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+
+    function CHAR:RemoveClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( !data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = nil
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+end
+
+function CHAR:HasClassWhitelist(class)
+    local classTable = istable(class) and class or ax.class:Get(class)
+
+    if ( !classTable or !classTable.id ) then
+        return false
+    end
+
+    if ( classTable.isWhitelist ) then
+        local data = self:GetData("classWhitelist", {})
+
+        return data[classTable.id] == true
+    end
+
+    return true
+end
+
+----------------------------------------------------------------------
+-- Can Become
+----------------------------------------------------------------------
+
+function ax.class:CanBecome(class, client)
+    local classTable = self:Get(class)
+
+    if ( !classTable ) then
+        return false, "Invalid class."
+    end
+
+    local char = client:GetCharacter()
+
+    if ( !char ) then
+        return false, "No character loaded"
+    end
+
+    if ( !char:HasClassWhitelist(classTable) ) then
+        return false, "You are not whitelisted for this class"
+    end
+
+    local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
+
+    if ( try == false and isstring(catch) and #catch > 0 ) then
+        client:Notify(catch, "error")
+        return false, catch
+    end
+
+    if ( isfunction(classTable.CanBecome) ) then
+        try, catch = classTable:CanBecome(client)
+
+        if ( try == false and isstring(catch) and #catch > 0 ) then
+            client:Notify(catch, "error")
+            return false, catch
+        end
+    end
+
+    return true, nil
+end
+
+--- Apply the standard properties of a class to a player.
+---@realm server
+---@param client Player
+---@param classTable table
+function ax.class:Apply(client, classTable)
+    if ( !ax.util:IsValidPlayer(client) ) then return end
+    if ( !istable(classTable) ) then return end
+
+    local character = client:GetCharacter()
+    if ( !character ) then return end
+
+    if ( isnumber(classTable.health) ) then
+        client:SetMaxHealth(classTable.health)
+        client:SetHealth(classTable.health)
+    end
+
+    if ( isnumber(classTable.armor) ) then
+        client:SetMaxArmor(classTable.armor)
+        client:SetArmor(classTable.armor)
+    end
+
+    if (
+        isstring(classTable.model) and
+        classTable.bSetModel
+    ) then
+        character:SetModel(classTable.model)
+    end
 end

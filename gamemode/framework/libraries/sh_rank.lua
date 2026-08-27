@@ -115,6 +115,81 @@ function ax.rank:Include(directory, timeFilter)
     return true
 end
 
+--- Registers a rank definition programmatically without requiring a file.
+---@realm shared
+---@param rankID string The unique rank identifier
+---@param rankTable table|nil The rank definition data
+---@return table|nil # The rank definition table, or nil on failure
+---@usage ax.rank:Register("captain", {
+---    name = "Captain",
+---    faction = FACTION_SECURITY
+---})
+function ax.rank:Register(rankID, rankTable)
+    if ( !isstring(rankID) or rankID == "" ) then
+        ErrorNoHalt("[ax.rank] Register called with invalid rankID\n")
+        return nil
+    end
+
+    if ( rankTable != nil and !istable(rankTable) ) then
+        ErrorNoHalt("[ax.rank] Register called with invalid rankTable\n")
+        return nil
+    end
+
+    rankTable = rankTable or {}
+
+    local existing = self.stored[rankID]
+
+    -- Preserve the existing index when replacing a rank.
+    local index = istable(existing) and existing.index or (#self.instances + 1)
+
+    -- Always provide the ID and index.
+    rankTable.id = rankID
+    rankTable.index = index
+
+    -- Register the rank.
+    self.stored[rankID] = rankTable
+    self.instances[index] = rankTable
+
+    -- Associate the rank with its faction.
+    if ( isnumber(rankTable.faction) ) then
+        local factionTable = ax.faction:Get(rankTable.faction)
+
+        if ( istable(factionTable) ) then
+            factionTable.ranks = factionTable.ranks or {}
+            factionTable.ranks[rankID] = rankTable
+        else
+            ax.util:PrintDebug(
+                color_warning,
+                string.format(
+                    "[ax.rank] Rank \"%s\" references invalid faction ID %s",
+                    rankID,
+                    tostring(rankTable.faction)
+                )
+            )
+        end
+    end
+
+    if ( existing ) then
+        ax.util:PrintDebug(
+            color_warning,
+            string.format(
+                "Rank \"%s\" re-registered programmatically.",
+                tostring(rankTable.name or rankTable.Name or rankID)
+            )
+        )
+    else
+        ax.util:PrintDebug(
+            color_success,
+            string.format(
+                "Rank \"%s\" registered programmatically.",
+                tostring(rankTable.name or rankTable.Name or rankID)
+            )
+        )
+    end
+
+    return rankTable
+end
+
 --- Get a rank by its identifier. Supports lookup by unique ID string, index number, name, or partial name matching.
 ---@realm shared
 ---@param identifier string|number The rank ID, index, or name to search for
@@ -148,7 +223,12 @@ end
 ---@return string|nil # Error message if denied.
 ---@usage local canBecome, reason = ax.rank:CanBecome("security", player)
 function ax.rank:CanBecome(rank, client)
-    local rankTable = self:Get(faction)
+    local rankTable = self:Get(rank)
+
+    if ( !istable(rankTable) ) then
+        return false, "Invalid rank."
+    end
+
     local try, catch = hook.Run("CanBecomeRank", rankTable, client)
     if ( try == false and isstring(catch) and #catch > 0 ) then
         client:Notify(catch, "error")

@@ -222,8 +222,12 @@ function GM:PlayerSpawn(client)
     end
 
     local classData = client:GetClassData()
-    if ( classData and classData.OnSpawn ) then
-        classData:OnSpawn(client)
+    if ( classData ) then
+        if (classData.OnSpawn) then
+            classData:OnSpawn(client)
+        end
+
+        ax.class:Apply(client, classData)
     end
 
     hook.Run("PostPlayerSpawn", client)
