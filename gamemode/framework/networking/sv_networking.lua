@@ -299,6 +299,23 @@ ax.net:Hook("character.create", function(client, payload)
         return
     end
 
+    if ax.config:Get("character_creating_cooldown") then
+		if (client:IsAdmin()) then return end
+
+        local count = table.Count(client:GetCharacters())
+        if count == 0 then return end
+
+        local endsAt = client.axCharCreatingCooldown or 0
+        if (endsAt > os.time()) then
+            local remaining = math.max(0, endsAt - os.time())
+
+        	return false, string.format(
+                "You must wait %s seconds before creating another character.",
+                remaining
+            )
+        end
+	end
+
     local try, catch = hook.Run("CanCreateCharacter", client, payload)
     if ( try == false ) then
         if ( isstring(catch) and #catch > 0 ) then
@@ -392,6 +409,11 @@ ax.net:Hook("character.create", function(client, payload)
             faction:OnCharacterCreated(client, character)
         end
 
+        if ax.config:Get("character_creating_cooldown") then
+    	    local cd = ax.config:Get("character_creating_cooldown_time")
+            client.axCharCreatingCooldown = os.time() + cd
+        end
+
         hook.Run("PlayerCreatedCharacter", client, character)
     end)
 end)
@@ -411,6 +433,16 @@ ax.net:Hook("character.load", function(client, charID)
     if ( character:GetSteamID64() != client:SteamID64() ) then
         ax.util:PrintError("Character ID " .. charID .. " does not belong to " .. client:SteamID64())
         return
+    end
+
+    if (ax.config:Get("character_loading_cooldown")) then
+        if (client:IsAdmin()) then return end
+        local endsAt = client.axCharLoadingCooldown or 0
+        if (endsAt > os.time()) then
+            local remaining = math.max(0, endsAt - os.time())
+            ax.util:PrintError(string.format("You must wait %s seconds before loading another character.", remaining))
+            return
+        end
     end
 
     local prevChar = client:GetCharacter()
@@ -442,6 +474,7 @@ ax.net:Hook("character.load", function(client, charID)
 
         return
     end
+
 
     ax.character:Load(client, character)
 end)

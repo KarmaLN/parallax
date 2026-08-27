@@ -386,3 +386,31 @@ ax.config:Add("respawn.delay", ax.type.number, 30, {
     category = "gameplay",
     subCategory = "respawn"
 })
+
+ax.config:Add("character_loading_cooldown", ax.type.bool, true, {
+    category = "character",
+    subCategory = "cooldown",
+    description = "Should there be a Cooldown on Loading Characters?",
+})
+
+ax.config:Add("character_loading_cooldown_time", ax.type.number, 120, {
+    category = "character",
+    subCategory = "cooldown",
+    description = "How many Seconds is the Loading Cooldown?",
+    min = 1,
+    max = 1800,
+})
+
+ax.config:Add("character_creating_cooldown", ax.type.bool, true, {
+    category = "character",
+    subCategory = "cooldown",
+    description = "Should there be a Cooldown on Creating Characters?",
+})
+
+ax.config:Add("character_creating_cooldown_time", ax.type.number, 120, {
+    category = "character",
+    subCategory = "cooldown",
+    description = "How many Seconds is the Creating Cooldown?",
+    min = 1,
+    max = 1800,
+})

@@ -252,6 +252,11 @@ function ax.character:Load(client, character)
         class:OnPlayerLoadedCharacter(client, character)
     end
 
+    if ax.config:Get("character_loading_cooldown") then
+    	local cd = ax.config:Get("character_loading_cooldown_time")
+        client.axCharLoadingCooldown = os.time() + cd
+    end
+
     hook.Run("PlayerLoadedCharacter", client, character, clientData.axCharacterPrevious)
 end
 
