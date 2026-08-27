@@ -306,7 +306,7 @@ ax.net:Hook("character.create", function(client, payload)
             local endsAt = client.axCharCreatingCooldown or 0
             if (endsAt > os.time()) then
                 local remaining = math.max(0, endsAt - os.time())
-				ax.util:PrintError(string.format("You must wait %s seconds before creating another character.", remaining)
+				ax.util:PrintError(string.format("You must wait %s seconds before creating another character.", remaining))
                 return
             end
     	end
