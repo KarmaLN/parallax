@@ -462,7 +462,7 @@ function ax.class:CanBecome(class, client)
     return true, nil
 end
 
---- Apply the standard properties of a class to a player.
+--- Apply the standard properties, weapons and items of a class to a player.
 ---@realm server
 ---@param client Player
 ---@param classTable table
@@ -473,16 +473,19 @@ function ax.class:Apply(client, classTable)
     local character = client:GetCharacter()
     if ( !character ) then return end
 
+    -- Health
     if ( isnumber(classTable.health) ) then
         client:SetMaxHealth(classTable.health)
         client:SetHealth(classTable.health)
     end
 
+    -- Armor
     if ( isnumber(classTable.armor) ) then
         client:SetMaxArmor(classTable.armor)
         client:SetArmor(classTable.armor)
     end
 
+    -- Model
     if (
         isstring(classTable.model) and
         classTable.bSetModel
@@ -490,9 +493,25 @@ function ax.class:Apply(client, classTable)
         character:SetModel(classTable.model)
     end
 
+    -- Weapons
     for _, weapon in ipairs(classTable.weapons or {}) do
-        if (!client:HasWeapon(weapon)) then
+        if ( isstring(weapon) and !client:HasWeapon(weapon) ) then
             client:Give(weapon)
+        end
+    end
+
+    -- Items
+    local inventory = character:GetInventory()
+
+    if ( inventory ) then
+        for _, uniqueID in ipairs(classTable.items or {}) do
+            if ( isstring(uniqueID) and !inventory:HasItem(uniqueID) ) then
+                local item = inventory:Add(uniqueID)
+
+                if ( item ) then
+                    item:SetData("classItem", true)
+                end
+            end
         end
     end
 end
@@ -510,6 +529,7 @@ function ax.class:Remove(client, class)
     local character = client:GetCharacter()
     if ( !character ) then return end
 
+    -- Remove class items
     local inventory = character:GetInventory()
 
     if ( inventory ) then
@@ -522,6 +542,7 @@ function ax.class:Remove(client, class)
         end
     end
 
+    -- Remove class weapons
     for _, weapon in ipairs(classTable.weapons or {}) do
         if ( client:HasWeapon(weapon) ) then
             client:StripWeapon(weapon)
