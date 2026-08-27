@@ -300,20 +300,16 @@ ax.net:Hook("character.create", function(client, payload)
     end
 
     if ax.config:Get("character_creating_cooldown") then
-		if (client:IsAdmin()) then return end
-
         local count = table.Count(client:GetCharacters())
-        if count == 0 then return end
+		if (!client:IsAdmin() and count != 0 ) then
 
-        local endsAt = client.axCharCreatingCooldown or 0
-        if (endsAt > os.time()) then
-            local remaining = math.max(0, endsAt - os.time())
-
-        	return false, string.format(
-                "You must wait %s seconds before creating another character.",
-                remaining
-            )
-        end
+            local endsAt = client.axCharCreatingCooldown or 0
+            if (endsAt > os.time()) then
+                local remaining = math.max(0, endsAt - os.time())
+				ax.util:PrintError(string.format("You must wait %s seconds before creating another character.", remaining)
+                return
+            end
+    	end
 	end
 
     local try, catch = hook.Run("CanCreateCharacter", client, payload)
@@ -407,11 +403,11 @@ ax.net:Hook("character.create", function(client, payload)
         local faction = ax.faction:Get(character:GetFaction())
         if ( istable(faction) and isfunction(faction.OnCharacterCreated) ) then
             faction:OnCharacterCreated(client, character)
-        end
 
-        if ax.config:Get("character_creating_cooldown") then
-    	    local cd = ax.config:Get("character_creating_cooldown_time")
-            client.axCharCreatingCooldown = os.time() + cd
+            if ax.config:Get("character_creating_cooldown") then
+    	    	local cd = ax.config:Get("character_creating_cooldown_time")
+            	client.axCharCreatingCooldown = os.time() + cd
+       	 	end
         end
 
         hook.Run("PlayerCreatedCharacter", client, character)
@@ -436,13 +432,14 @@ ax.net:Hook("character.load", function(client, charID)
     end
 
     if (ax.config:Get("character_loading_cooldown")) then
-        if (client:IsAdmin()) then return end
-        local endsAt = client.axCharLoadingCooldown or 0
-        if (endsAt > os.time()) then
-            local remaining = math.max(0, endsAt - os.time())
-            ax.util:PrintError(string.format("You must wait %s seconds before loading another character.", remaining))
-            return
-        end
+        if (!client:IsAdmin()) then
+            local endsAt = client.axCharLoadingCooldown or 0
+            if (endsAt > os.time()) then
+                local remaining = math.max(0, endsAt - os.time())
+                ax.util:PrintError(string.format("You must wait %s seconds before loading another character.", remaining))
+                return
+            end
+       	end
     end
 
     local prevChar = client:GetCharacter()
