@@ -489,6 +489,12 @@ function ax.class:Apply(client, classTable)
     ) then
         character:SetModel(classTable.model)
     end
+
+    for _, weapon in ipairs(classTable.weapons or {}) do
+        if (!client:HasWeapon(weapon)) then
+            client:Give(weapon)
+        end
+    end
 end
 
 --- Remove weapons and items belonging to a class.
