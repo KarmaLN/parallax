@@ -182,6 +182,48 @@ function character:GetBodyGroups()
     return self:GetData("bodygroups", {})
 end
 
+function CHAR:GetClassName()
+    local classIndex = self:GetClass()
+    if ( !classIndex ) then
+        return "None"
+    end
+
+    local classTable = ax.class:Get(classIndex)
+    if ( !classTable ) then
+        return "None"
+    end
+
+    return classTable.name or classTable.Name or "None"
+end
+
+function CHAR:GetRankName()
+    local rankIndex = self:GetRank()
+    if ( !rankIndex ) then
+        return "None"
+    end
+
+    local rankTable = ax.rank:Get(rankIndex)
+    if ( !rankTable ) then
+        return "None"
+    end
+
+    return rankTable.name or rankTable.Name or "None"
+end
+
+function CHAR:GetRankIcon()
+    local rankIndex = self:GetRank()
+    if ( !rankIndex ) then
+        return nil
+    end
+
+    local rankTable = ax.rank:Get(rankIndex)
+    if ( !rankTable ) then
+        return nil
+    end
+
+    return rankTable.icon
+end
+
 if ( SERVER ) then
     --- Sets a bodygroup on the character's player model and persists it. Immediately applies the bodygroup to the owning player (if online) via `Player:SetBodygroup`, then stores the value in the character's data under `"bodygroups"` keyed by the numeric index (as a string) and saves via `SetData`. The stored value is reapplied when the character loads.
     ---@realm server
