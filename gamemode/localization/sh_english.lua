@@ -380,6 +380,15 @@ ax.localization:Register("en", {
     ["scoreboard.context.view_profile"] = "View Profile",
 
     -- Performance
+
+    ["category.character"] = "Character",
+    ["subcategory.cooldown"] = "Cooldown",
+
+	["config.character_creating_cooldown"] = "Enable Creating Cooldown",
+    ["config.character_creating_cooldown_time"] = "Creating Cooldown Time",
+    ["config.character_loading_cooldown"] = "Enable Loading Cooldown",
+    ["config.character_loading_cooldown_time"] = "Loading Cooldown Time",
+
     ["category.performance"] = "Performance",
     ["subcategory.general"] = "General",
     ["subcategory.graphics"] = "Graphics",
