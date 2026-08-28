@@ -1,10 +1,8 @@
 ITEM.name = "Outfit"
 ITEM.description = "A base outfit item."
-ITEM.category = "Outfit"
+ITEM.category = "Outfits"
 ITEM.model = Model("models/props_c17/suitcase_passenger_physics.mdl")
-ITEM.width = 1
-ITEM.height = 1
-
+ITEM.weight = 1
 ITEM.isOutfit = true
 
 -- Bodygroups this outfit controls.
