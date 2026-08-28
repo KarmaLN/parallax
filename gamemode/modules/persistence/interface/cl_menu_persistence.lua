@@ -108,7 +108,13 @@ function PANEL:RenderPage()
         prop:Dock(TOP)
         prop:SetTall(120)
         prop:DockMargin(0, 0, 0, 8)
-        prop:SetText((data.class or "unknown") .. " | " .. (data.model or "unknown"))
+        prop:SetText("")
+        
+        local namePanel = prop:Add("ax.text")
+        namePanel:SetText((data.class or "unknown") .. " | " .. (data.model or "unknown"))
+        namePanel:SetFont("ax.small")
+        namePanel:Dock(FILL)
+        namePanel:SetVisible(false)
 
         -- Model preview
         local modelPanel = prop:Add("SpawnIcon")
@@ -120,6 +126,9 @@ function PANEL:RenderPage()
             if IsValid(modelPanel) then
                 modelPanel:SetModel(data.model or "models/error.mdl")
                 modelPanel:SetVisible(true)
+                    
+               namePanel:SetText((data.class or "unknown") .. " | " .. (data.model or "unknown"))     
+               namePanel:SetVisible(true)     
             end
         end)
 
