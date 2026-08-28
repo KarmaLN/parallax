@@ -836,6 +836,52 @@ function player:PerformAction(label, duration, onComplete, onCancel, bAllowRagdo
     end
 end
 
+function player:PerformHoldingAction(text, duration, callback, cancel)
+    if (self.axHoldingAction) then
+        return false
+    end
+
+    self.axHoldingAction = true
+
+    local timerName = "ax.player." .. self:SteamID64() .. ".holdingAction"
+
+    local function finish(success)
+        if (!self.axHoldingAction) then
+            return
+        end
+
+        self.axHoldingAction = nil
+        self:RemoveTimer(timerName)
+
+        if (success) then
+            if (isfunction(callback)) then
+                callback()
+            end
+        elseif (isfunction(cancel)) then
+            cancel()
+        end
+    end
+
+    local started = self:PerformAction(text, duration, function()
+        finish(true)
+    end, function()
+        finish(false)
+    end)
+
+    if (started == false) then
+        self.axHoldingAction = nil
+        return false
+    end
+
+    self:Timer(timerName, 0.05, 0, function(client)
+        if (!client:KeyDown(IN_USE)) then
+            client:PerformAction()
+        end
+    end)
+
+    return true
+end
+
 --- Returns whether the player is still in a position to maintain an entity interaction. First checks `self:GetUseEntity()` — if it equals `entity` the player is actively looking at it and true is returned immediately. If `allowEyeTrace` is true, also checks `self:GetEyeTrace()` and optionally enforces a maximum distance between the player's shoot position and the trace hit position. Returns false when the player or entity is invalid, the entity is not being looked at, or the distance limit is exceeded.
 ---@realm shared
 ---@param entity Entity The entity the action is being performed on.
