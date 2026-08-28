@@ -30,7 +30,7 @@ function TOOL:LeftClick(trace)
     if banned[class] then return false end
 
     if ent:IsPlayer() then return false end
-	if ent:GetNWBool("Persistent", false) then return false end
+	if ent:GetNWBool("Persistent", false) then ply:Notify("Prop already persisted!") return false end
     
     ax.persistence:Add(ent)
     ply:Notify("Persistent prop added!")
@@ -47,7 +47,7 @@ function TOOL:RightClick(trace)
     local ent = trace.Entity
     if not IsValid(ent) then return false end
     if ent:IsPlayer() then return false end
-    if not ent:GetNWBool("Persistent", false) then ply:Notify("Prop already persisted!") return false end
+    if not ent:GetNWBool("Persistent", false) then return false end
 
     local uid = ax.persistence:GetUID(ent)
     if not uid then return false end
