@@ -33,7 +33,7 @@ function TOOL:LeftClick(trace)
 	if ent:GetNWBool("Persistent", false) then return false end
     
     ax.persistence:Add(ent)
-    self:GetOwner():Notify("Persistent prop added")
+    ply:Notify("Persistent prop added!")
 
     return true
 end
@@ -47,14 +47,14 @@ function TOOL:RightClick(trace)
     local ent = trace.Entity
     if not IsValid(ent) then return false end
     if ent:IsPlayer() then return false end
-    if not ent:GetNWBool("Persistent", false) then return false end
+    if not ent:GetNWBool("Persistent", false) then ply:Notify("Prop already persisted!") return false end
 
     local uid = ax.persistence:GetUID(ent)
     if not uid then return false end
 
     ax.persistence:RemoveByUID(uid)
 
-    ply:Notify("Persistent prop removed")
+    ply:Notify("Persistent prop removed!")
 
     return true
 end
@@ -87,9 +87,9 @@ function TOOL:Reload(trace)
         local updated = ax.persistence:UpdateByUID(uid, ent)
 
         if updated then
-            ply:ChatPrint("Updated persistent prop.")
+            ply:Notify("Updated persisted prop!")
         else
-            ply:ChatPrint("Failed to update prop.")
+            ply:Notify("Failed to update prop!")
         end
     end
 
