@@ -510,3 +510,27 @@ ax.chat:Add("admin", {
         return listener:IsAdmin()
     end
 })
+
+ax.command:Add("CharForceSearch", {
+    description = "Search a player's inventory.",
+    adminOnly = true,
+    arguments = {
+        {
+            name = "target",
+            type = ax.type.player
+        }
+    },
+    OnRun = function(self, client, target)
+        if not ax.util:IsValidPlayer(target) then
+            client:Notify("Invalid player.", "error")
+            return
+        end
+
+        if not target:GetCharacter() then
+            client:Notify("Target has no character.", "error")
+            return
+        end
+
+        ax.restrain:BeginSearch(client, target)
+    end
+})
