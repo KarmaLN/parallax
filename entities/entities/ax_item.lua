@@ -8,6 +8,8 @@ ENT.Category = "Parallax"
 ENT.Spawnable = false
 ENT.RenderGroup = RENDERGROUP_BOTH
 
+ENT.isItem = true
+
 function ENT:SetupDataTables()
     self:NetworkVar("Int", 0, "ItemID")
     self:NetworkVar("String", 0, "ItemClass")
