@@ -531,6 +531,6 @@ ax.command:Add("CharForceSearch", {
             return
         end
 
-        ax.restrain:BeginSearch(client, target)
+        ax.admin:BeginSearch(client, target)
     end
 })
