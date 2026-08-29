@@ -102,7 +102,7 @@ function MODULE:ValidateSearchSessions()
 
         local target = session.target
 
-        if ( !ax.util:IsValidPlayer(target) or !searcher:Alive() or !target:Alive() or !self:IsRestrained(target) ) then
+        if ( !ax.util:IsValidPlayer(target) or !searcher:Alive() or !target:Alive()) then
             self:EndSearch(searcher, "invalid")
             continue
         end
