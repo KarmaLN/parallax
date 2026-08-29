@@ -125,7 +125,8 @@ local function ShouldImmerse(client)
     if ax.option:Get("thirdperson") then return false end
     if not ax.option:Get("bodycam", true) then return false end
     if client:GetViewEntity() ~= client then return false end
-
+    if client:InVehicle() then return false end
+    
     local wep = client:GetActiveWeapon()
     if not IsValid(wep) or blackList[wep:GetClass()] then return false end
 	if not IsValid(wep) then return false end
