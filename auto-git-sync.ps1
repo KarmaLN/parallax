@@ -1,5 +1,5 @@
 $RepoPath = $PSScriptRoot
-$DelaySeconds = 5
+$DelaySeconds = 60
 
 Write-Host "========================================"
 Write-Host " Git Auto Sync"
