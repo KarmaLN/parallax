@@ -21,7 +21,7 @@ function PANEL:Init()
 	self.factions = {}
 	self.classes = {}
 
-	for k, v in ipairs(ax.faction.indices) do
+	for k, v in ipairs(ax.faction:GetAll()) do
 		local panel = self.scroll:Add("DPanel")
 		panel:Dock(TOP)
 		panel:DockPadding(4, 4, 4, 4)
@@ -37,7 +37,7 @@ function PANEL:Init()
 
 		self.factions[v.uniqueID] = faction
 
-		for _, v2 in ipairs(ax.class.list) do
+		for _, v2 in ipairs(ax.class:GetAll()) do
 			if (v2.faction == k) then
 				local class = panel:Add("DCheckBoxLabel")
 				class:Dock(TOP)
