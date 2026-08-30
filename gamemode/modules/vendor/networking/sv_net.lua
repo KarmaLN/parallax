@@ -1,0 +1,10 @@
+util.AddNetworkString("axVendorOpen")
+util.AddNetworkString("axVendorClose")
+util.AddNetworkString("axVendorTrade")
+
+util.AddNetworkString("axVendorEdit")
+util.AddNetworkString("axVendorEditFinish")
+util.AddNetworkString("axVendorEditor")
+util.AddNetworkString("axVendorMoney")
+util.AddNetworkString("axVendorStock")
+util.AddNetworkString("axVendorAddItem")
