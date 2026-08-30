@@ -70,22 +70,6 @@ function PANEL:PopulateCharacterList()
             ax.net:Start("character.load", v.id)
         end
 
-        local faction = v:GetFactionData()
-        local banner = hook.Run("GetCharacterBanner", v.id) or (faction and faction.image) or "gamepadui/hl2/chapter14"
-        if ( isstring(banner) ) then
-            banner = ax.util:GetMaterial(banner)
-        end
-
-        local image = button:Add("EditablePanel")
-        image:Dock(LEFT)
-        image:DockMargin(0, 0, ax.util:ScreenScale(8), 0)
-        image:SetSize(button:GetTall() * 1.75, button:GetTall())
-        image:SetMouseInputEnabled(false)
-        image.Paint = function(this, width, height)
-            ax.theme:DrawGlassButton(0, 0, width, height, {
-                material = banner
-            })
-        end
 
         local deleteButton = button:Add("ax.button")
         deleteButton:Dock(RIGHT)
@@ -135,11 +119,34 @@ function PANEL:PopulateCharacterList()
             nameFont = "ax.large.bold"
         end
 
+        local rankText = v:GetRankName() or "None"
+        local classText = v:GetClassName() or "None"
+        local factionText = ax.faction:Get(v:GetFaction()).name or "None"
+
+        local model = button:Add("DModelPanel")
+        model:SetModel(v:GetModel() or "models/player/kleiner.mdl")
+        model:SetFOV(60)
+        model:Dock(LEFT)
+        model:SetWide(150)
+        model:SetMouseInputEnabled(false)
+        model.LayoutEntity = function(this, ent)
+            ent:SetAngles(Angle(0, 45, 0))
+        end
+
         local name = button:Add("ax.text")
         name:Dock(TOP)
         name:SetFont(nameFont)
         name:SetText(nameText:upper(), true)
         name.Think = function(this)
+            this:SetTextColor(button:GetTextColor())
+        end
+
+        local info = button:Add("ax.text")
+        info:Dock(TOP)
+        info:DockMargin(15, 0, 0, 0)
+        info:SetFont("ax.regular")
+        info:SetText(factionText .. " • " .. classText .. " • " .. rankText, true)
+        info.Think = function(this)
             this:SetTextColor(button:GetTextColor())
         end
 
