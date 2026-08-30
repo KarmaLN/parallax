@@ -172,7 +172,7 @@ function ENT:SetAnim()
 end
 
 if (SERVER) then
-	local PLUGIN = PLUGIN
+	local MODULE = MODULE
 
 	function ENT:SpawnFunction(client, trace)
 		local angles = (trace.HitPos - client:GetPos()):Angle()
@@ -185,7 +185,7 @@ if (SERVER) then
 		entity:SetAngles(angles)
 		entity:Spawn()
 
-		PLUGIN:SaveData()
+		MODULE:SaveData()
 
 		return entity
 	end
