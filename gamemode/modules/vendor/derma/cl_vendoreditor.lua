@@ -178,7 +178,7 @@ function PANEL:Init()
 				self:updateVendor("mode", {uniqueID, VENDOR_SELLONLY})
 			end):SetImage("icon16/cog_add.png")
 
-			local itemTable = ax.item.list[uniqueID]
+			local itemTable = ax.item.stored[uniqueID]
 
 			-- Set the price of the item.
 			menu:AddOption(L"price", function()
@@ -244,7 +244,7 @@ function PANEL:ReloadItemList(filter)
 
 	self.items:Clear()
 
-	for k, v in SortedPairs(ax.item.list) do
+	for k, v in SortedPairs(ax.item.stored) do
 		local itemName = v.GetName and v:GetName() or L(v.name)
 
 		if (filter and !itemName:lower():find(filter:lower(), 1, false)) then

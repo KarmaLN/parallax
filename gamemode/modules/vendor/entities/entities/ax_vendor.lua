@@ -231,7 +231,9 @@ if (SERVER) then
 			net.WriteFloat(self.scale or 0.5)
 		net.Send(activator)
 
-		ax.log.Add(activator, "vendorUse", self:GetDisplayName())
+		if ( ax.log and isfunction(ax.log.Add) ) then
+			ax.log:Add(activator, "vendorUse", self:GetDisplayName())
+		end
 	end
 
 	function ENT:SetMoney(value)

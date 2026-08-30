@@ -99,7 +99,7 @@ function PANEL:addItem(uniqueID, listID)
 	local data = items[uniqueID]
 
 	if ((!listID or listID == "selling") and !IsValid(self.sellingList[uniqueID])
-	and ax.item.list[uniqueID]) then
+	and ax.item.stored[uniqueID]) then
 		if (data and data[VENDOR_MODE] and data[VENDOR_MODE] != VENDOR_BUYONLY) then
 			local item = self.sellingItems:Add("axVendorItem")
 			item:Setup(uniqueID)
@@ -235,7 +235,7 @@ function PANEL:SetCallback(callback)
 end
 
 function PANEL:Setup(uniqueID)
-	local item = ax.item.list[uniqueID]
+	local item = ax.item.stored[uniqueID]
 
 	if (item) then
 		self.item = uniqueID
