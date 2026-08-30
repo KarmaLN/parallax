@@ -66,7 +66,7 @@ end
 
 function ENT:CanAccess(client)
 	local bAccess = false
-	local uniqueID = ax.faction.indices[client:Team()].uniqueID
+	local uniqueID = ax.faction:Get(client:Team()).uniqueID
 
 	if (self.factions and !table.IsEmpty(self.factions)) then
 		if (self.factions[uniqueID]) then
