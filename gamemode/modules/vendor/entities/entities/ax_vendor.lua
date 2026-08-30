@@ -222,10 +222,7 @@ if (SERVER) then
 
 		activator.axVendor = self
 
-		-- force sync to prevent outdated inventories while buying/selling
-		if (character) then
-			character:GetInventory():Sync(activator, true)
-		end
+
 
 		net.Start("axVendorOpen")
 			net.WriteEntity(self)
