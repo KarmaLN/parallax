@@ -1,7 +1,7 @@
 
 ENT.Type = "anim"
 ENT.PrintName = "Vendor"
-ENT.Category = "Helix"
+ENT.Category = "Parallax"
 ENT.Spawnable = true
 ENT.AdminOnly = true
 ENT.isVendor = true
@@ -66,7 +66,7 @@ end
 
 function ENT:CanAccess(client)
 	local bAccess = false
-	local uniqueID = ix.faction.indices[client:Team()].uniqueID
+	local uniqueID = ax.faction.indices[client:Team()].uniqueID
 
 	if (self.factions and !table.IsEmpty(self.factions)) then
 		if (self.factions[uniqueID]) then
@@ -77,7 +77,7 @@ function ENT:CanAccess(client)
 	end
 
 	if (bAccess and self.classes and !table.IsEmpty(self.classes)) then
-		local class = ix.class.list[client:GetCharacter():GetClass()]
+		local class = ax.class.list[client:GetCharacter():GetClass()]
 		local classID = class and class.uniqueID
 
 		if (classID and !self.classes[classID]) then
@@ -95,7 +95,7 @@ function ENT:GetStock(uniqueID)
 end
 
 function ENT:GetPrice(uniqueID, selling)
-	local itemTable = ix.item.list[uniqueID]
+	local itemTable = ax.item.list[uniqueID]
 
 	if (!itemTable) then
 		return 0
@@ -113,7 +113,7 @@ end
 function ENT:CanSellToPlayer(client, uniqueID)
 	local data = self.items[uniqueID]
 
-	if (!data or !client:GetCharacter() or !ix.item.list[uniqueID]) then
+	if (!data or !client:GetCharacter() or !ax.item.list[uniqueID]) then
 		return false
 	end
 
@@ -135,7 +135,7 @@ end
 function ENT:CanBuyFromPlayer(client, uniqueID)
 	local data = self.items[uniqueID]
 
-	if (!data or !client:GetCharacter() or !ix.item.list[uniqueID]) then
+	if (!data or !client:GetCharacter() or !ax.item.list[uniqueID]) then
 		return false
 	end
 
@@ -143,7 +143,7 @@ function ENT:CanBuyFromPlayer(client, uniqueID)
 		return false
 	end
 
-	if (!self:HasMoney(data[VENDOR_PRICE] or ix.item.list[uniqueID].price or 0)) then
+	if (!self:HasMoney(data[VENDOR_PRICE] or ax.item.list[uniqueID].price or 0)) then
 		return false
 	end
 
@@ -180,7 +180,7 @@ if (SERVER) then
 		angles.p = 0
 		angles.y = angles.y + 180
 
-		local entity = ents.Create("ix_vendor")
+		local entity = ents.Create("ax_vendor")
 		entity:SetPos(trace.HitPos)
 		entity:SetAngles(angles)
 		entity:Spawn()
@@ -213,34 +213,34 @@ if (SERVER) then
 
 		-- Only send what is needed.
 		for k, v in pairs(self.items) do
-			if (!table.IsEmpty(v) and (CAMI.PlayerHasAccess(activator, "Helix - Manage Vendors", nil) or v[VENDOR_MODE])) then
+			if (!table.IsEmpty(v) and (CAMI.PlayerHasAccess(activator, "Parallax - Manage Vendors", nil) or v[VENDOR_MODE])) then
 				items[k] = v
 			end
 		end
 
 		self.scale = self.scale or 0.5
 
-		activator.ixVendor = self
+		activator.axVendor = self
 
 		-- force sync to prevent outdated inventories while buying/selling
 		if (character) then
 			character:GetInventory():Sync(activator, true)
 		end
 
-		net.Start("ixVendorOpen")
+		net.Start("axVendorOpen")
 			net.WriteEntity(self)
 			net.WriteUInt(self.money or 0, 16)
 			net.WriteTable(items)
 			net.WriteFloat(self.scale or 0.5)
 		net.Send(activator)
 
-		ix.log.Add(activator, "vendorUse", self:GetDisplayName())
+		ax.log.Add(activator, "vendorUse", self:GetDisplayName())
 	end
 
 	function ENT:SetMoney(value)
 		self.money = value
 
-		net.Start("ixVendorMoney")
+		net.Start("axVendorMoney")
 			net.WriteUInt(value and value or -1, 16)
 		net.Send(self.receivers)
 	end
@@ -265,7 +265,7 @@ if (SERVER) then
 		self.items[uniqueID] = self.items[uniqueID] or {}
 		self.items[uniqueID][VENDOR_STOCK] = math.min(value, self.items[uniqueID][VENDOR_MAXSTOCK])
 
-		net.Start("ixVendorStock")
+		net.Start("axVendorStock")
 			net.WriteString(uniqueID)
 			net.WriteUInt(value, 16)
 		net.Send(self.receivers)
