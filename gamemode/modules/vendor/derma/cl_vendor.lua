@@ -1,6 +1,14 @@
 
 local PANEL = {}
 
+local function L(key, ...)
+	if ( ax and ax.localization and isfunction(ax.localization.GetPhrase) ) then
+		return ax.localization:GetPhrase(key, ...)
+	end
+
+	return tostring(key)
+end
+
 AccessorFunc(PANEL, "bReadOnly", "ReadOnly", FORCE_BOOL)
 
 function PANEL:Init()

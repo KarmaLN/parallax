@@ -1,3 +1,11 @@
+local function L(key, ...)
+	if ( ax and ax.localization and isfunction(ax.localization.GetPhrase) ) then
+		return ax.localization:GetPhrase(key, ...)
+	end
+
+	return tostring(key)
+end
+
 VENDOR_TEXT = {}
 	VENDOR_TEXT[VENDOR_SELLANDBUY] = "vendorBoth"
 	VENDOR_TEXT[VENDOR_BUYONLY] = "vendorBuy"

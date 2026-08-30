@@ -230,7 +230,7 @@ net.Receive("axVendorTrade", function(length, client)
 					if (item.class == uniqueID and item:GetID() != 0 and ax.item.instances[item:GetID()] and item:GetData("equip", false) == false) then
 						invOkay = item:Remove()
 						found = true
-						name = L(item.name, client)
+						name = item.name or uniqueID
 
 						break
 					end
@@ -268,7 +268,8 @@ net.Receive("axVendorTrade", function(length, client)
 					return false
 				end
 
-				local name = L(ax.item.stored[uniqueID].name, client)
+				local itemName = ax.item.stored[uniqueID] and ax.item.stored[uniqueID].name or uniqueID
+				local name = itemName
 
 				client:GetCharacter():TakeMoney(price, price == 0)
 				client:NotifyLocalized("businessPurchase", name, ax.currencies:Format(price, "default"))
