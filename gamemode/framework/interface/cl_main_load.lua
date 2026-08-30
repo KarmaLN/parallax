@@ -152,9 +152,9 @@ function PANEL:PopulateCharacterList()
 
         local lastPlayed = button:Add("ax.text")
         lastPlayed:Dock(BOTTOM)
-        lastPlayed:DockMargin(0, 0, 0, ax.util:ScreenScaleH(8))
-        lastPlayed:SetFont("ax.large")
-        lastPlayed:SetText(os.date("%a %b %d %H:%M:%S %Y", v:GetLastPlayed()), true)
+        lastPlayed:DockMargin(15, 0, 0, 0)
+        lastPlayed:SetFont("ax.regular")
+        lastPlayed:SetText("Last Played: " .. os.date("%d/%m/%Y", v:GetLastPlayed()), true)
         lastPlayed.Think = function(this)
             this:SetTextColor(button:GetTextColor())
         end
