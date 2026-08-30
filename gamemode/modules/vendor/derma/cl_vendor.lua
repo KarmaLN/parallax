@@ -272,7 +272,7 @@ end
 
 function PANEL:Paint(w, h)
 	if (ax.gui.vendor.activeBuy == self or ax.gui.vendor.activeSell == self) then
-		surface.SetDrawColor(ax.config:Get("color"))
+		surface.SetDrawColor(255,255,255)
 	else
 		surface.SetDrawColor(0, 0, 0, 100)
 	end
