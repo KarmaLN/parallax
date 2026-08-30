@@ -19,15 +19,15 @@ function PANEL:Init()
 	self.vendorName:SetText("John Doe")
 	self.vendorName:SetTextInset(4, 0)
 	self.vendorName:SetTextColor(color_white)
-	self.vendorName:SetFont("ixMediumFont")
+	self.vendorName:SetFont("ax.small")
 
 	self.ourName = header:Add("DLabel")
 	self.ourName:Dock(RIGHT)
 	self.ourName:SetWide(self:GetWide() * 0.5 - 7)
-	self.ourName:SetText(L"you".." ("..ix.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
+	self.ourName:SetText(L"you".." ("..ax.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
 	self.ourName:SetTextInset(0, 0)
 	self.ourName:SetTextColor(color_white)
-	self.ourName:SetFont("ixMediumFont")
+	self.ourName:SetFont("ax.small")
 
 	local footer = self:Add("DPanel")
 	footer:SetTall(34)
@@ -35,7 +35,7 @@ function PANEL:Init()
 	footer:SetPaintBackground(false)
 
 	self.vendorSell = footer:Add("DButton")
-	self.vendorSell:SetFont("ixMediumFont")
+	self.vendorSell:SetFont("ax.small")
 	self.vendorSell:SetWide(self.vendorName:GetWide())
 	self.vendorSell:Dock(LEFT)
 	self.vendorSell:SetContentAlignment(5)
@@ -45,7 +45,7 @@ function PANEL:Init()
 
 	self.vendorSell.DoClick = function(this)
 		if (IsValid(self.activeSell)) then
-			net.Start("ixVendorTrade")
+			net.Start("axVendorTrade")
 				net.WriteString(self.activeSell.item)
 				net.WriteBool(false)
 			net.SendToServer()
@@ -53,7 +53,7 @@ function PANEL:Init()
 	end
 
 	self.vendorBuy = footer:Add("DButton")
-	self.vendorBuy:SetFont("ixMediumFont")
+	self.vendorBuy:SetFont("ax.small")
 	self.vendorBuy:SetWide(self.ourName:GetWide())
 	self.vendorBuy:Dock(RIGHT)
 	self.vendorBuy:SetContentAlignment(5)
@@ -61,7 +61,7 @@ function PANEL:Init()
 	self.vendorBuy:SetTextColor(color_white)
 	self.vendorBuy.DoClick = function(this)
 		if (IsValid(self.activeBuy)) then
-			net.Start("ixVendorTrade")
+			net.Start("axVendorTrade")
 				net.WriteString(self.activeBuy.item)
 				net.WriteBool(true)
 			net.SendToServer()
@@ -99,9 +99,9 @@ function PANEL:addItem(uniqueID, listID)
 	local data = items[uniqueID]
 
 	if ((!listID or listID == "selling") and !IsValid(self.sellingList[uniqueID])
-	and ix.item.list[uniqueID]) then
+	and ax.item.list[uniqueID]) then
 		if (data and data[VENDOR_MODE] and data[VENDOR_MODE] != VENDOR_BUYONLY) then
-			local item = self.sellingItems:Add("ixVendorItem")
+			local item = self.sellingItems:Add("axVendorItem")
 			item:Setup(uniqueID)
 
 			self.sellingList[uniqueID] = item
@@ -112,7 +112,7 @@ function PANEL:addItem(uniqueID, listID)
 	if ((!listID or listID == "buying") and !IsValid(self.buyingList[uniqueID])
 	and LocalPlayer():GetCharacter():GetInventory():HasItem(uniqueID)) then
 		if (data and data[VENDOR_MODE] and data[VENDOR_MODE] != VENDOR_SELLONLY) then
-			local item = self.buyingItems:Add("ixVendorItem")
+			local item = self.buyingItems:Add("axVendorItem")
 			item:Setup(uniqueID)
 			item.isLocal = true
 
@@ -156,11 +156,11 @@ function PANEL:Setup(entity)
 end
 
 function PANEL:OnRemove()
-	net.Start("ixVendorClose")
+	net.Start("axVendorClose")
 	net.SendToServer()
 
-	if (IsValid(ix.gui.vendorEditor)) then
-		ix.gui.vendorEditor:Remove()
+	if (IsValid(ax.gui.vendorEditor)) then
+		ax.gui.vendorEditor:Remove()
 	end
 end
 
@@ -175,8 +175,8 @@ function PANEL:Think()
 
 	if ((self.nextUpdate or 0) < CurTime()) then
 		self:SetTitle(self.entity:GetDisplayName())
-		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ix.currency.Get(entity.money)..")" or ""))
-		self.ourName:SetText(L"you".." ("..ix.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
+		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ax.currency.Get(entity.money)..")" or ""))
+		self.ourName:SetText(L"you".." ("..ax.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
 
 		self.nextUpdate = CurTime() + 0.25
 	end
@@ -186,13 +186,13 @@ function PANEL:OnItemSelected(panel)
 	local price = self.entity:GetPrice(panel.item, panel.isLocal)
 
 	if (panel.isLocal) then
-		self.vendorBuy:SetText(L"sell".." ("..ix.currency.Get(price)..")")
+		self.vendorBuy:SetText(L"sell".." ("..ax.currency.Get(price)..")")
 	else
-		self.vendorSell:SetText(L"purchase".." ("..ix.currency.Get(price)..")")
+		self.vendorSell:SetText(L"purchase".." ("..ax.currency.Get(price)..")")
 	end
 end
 
-vgui.Register("ixVendor", PANEL, "DFrame")
+vgui.Register("axVendor", PANEL, "DFrame")
 
 PANEL = {}
 
@@ -208,7 +208,7 @@ function PANEL:Init()
 	self.name = self:Add("DLabel")
 	self.name:Dock(FILL)
 	self.name:DockMargin(42, 0, 0, 0)
-	self.name:SetFont("ixChatFont")
+	self.name:SetFont("ax.small")
 	self.name:SetTextColor(color_white)
 	self.name:SetExpensiveShadow(1, Color(0, 0, 0, 200))
 
@@ -218,12 +218,12 @@ function PANEL:Init()
 	self.click.Paint = function() end
 	self.click.DoClick = function(this)
 		if (self.isLocal) then
-			ix.gui.vendor.activeBuy = self
+			ax.gui.vendor.activeBuy = self
 		else
-			ix.gui.vendor.activeSell = self
+			ax.gui.vendor.activeSell = self
 		end
 
-		ix.gui.vendor:OnItemSelected(self)
+		ax.gui.vendor:OnItemSelected(self)
 	end
 end
 
@@ -235,7 +235,7 @@ function PANEL:SetCallback(callback)
 end
 
 function PANEL:Setup(uniqueID)
-	local item = ix.item.list[uniqueID]
+	local item = ax.item.list[uniqueID]
 
 	if (item) then
 		self.item = uniqueID
@@ -243,24 +243,12 @@ function PANEL:Setup(uniqueID)
 		self.name:SetText(item:GetName())
 		self.itemName = item:GetName()
 
-		self.click:SetHelixTooltip(function(tooltip)
-			ix.hud.PopulateItemTooltip(tooltip, item)
-
-			local entity = ix.gui.vendor.entity
-			if (entity and entity.items[self.item] and entity.items[self.item][VENDOR_MAXSTOCK]) then
-				local info = entity.items[self.item]
-				local stock = tooltip:AddRowAfter("name", "stock")
-				stock:SetText(string.format("Stock: %d/%d", info[VENDOR_STOCK], info[VENDOR_MAXSTOCK]))
-				stock:SetBackgroundColor(derma.GetColor("Info", self))
-				stock:SizeToContents()
-			end
-		end)
 	end
 end
 
 function PANEL:Think()
 	if ((self.nextUpdate or 0) < CurTime()) then
-		local entity = ix.gui.vendor.entity
+		local entity = ax.gui.vendor.entity
 
 		if (entity and self.isLocal) then
 			local count = LocalPlayer():GetCharacter():GetInventory():GetItemCount(self.item)
@@ -275,8 +263,8 @@ function PANEL:Think()
 end
 
 function PANEL:Paint(w, h)
-	if (ix.gui.vendor.activeBuy == self or ix.gui.vendor.activeSell == self) then
-		surface.SetDrawColor(ix.config.Get("color"))
+	if (ax.gui.vendor.activeBuy == self or ax.gui.vendor.activeSell == self) then
+		surface.SetDrawColor(ax.config.Get("color"))
 	else
 		surface.SetDrawColor(0, 0, 0, 100)
 	end
@@ -284,4 +272,4 @@ function PANEL:Paint(w, h)
 	surface.DrawRect(0, 0, w, h)
 end
 
-vgui.Register("ixVendorItem", PANEL, "DPanel")
+vgui.Register("axVendorItem", PANEL, "DPanel")
