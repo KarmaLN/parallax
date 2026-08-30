@@ -1,3 +1,5 @@
+local MODULE = MODULE
+
 util.AddNetworkString("axVendorOpen")
 util.AddNetworkString("axVendorClose")
 util.AddNetworkString("axVendorTrade")
@@ -215,13 +217,13 @@ net.Receive("axVendorTrade", function(length, client)
 				local name
 
 				if (!entity:HasMoney(price)) then
-					return client:NotifyLocalized("vendorNoMoney")
+					return client:Notify("vendorNoMoney")
 				end
 
 				local stock, max = entity:GetStock(uniqueID)
 
 				if (stock and stock >= max) then
-					return client:NotifyLocalized("vendorMaxStock")
+					return client:Notify("vendorMaxStock")
 				end
 
 				local invOkay = true
@@ -242,11 +244,11 @@ net.Receive("axVendorTrade", function(length, client)
 
 				if (!invOkay) then
 					client:GetCharacter():GetInventory():Sync(client, true)
-					return client:NotifyLocalized("tellAdmin", "trd!iid")
+					return client:Notify("tellAdmin", "trd!iid")
 				end
 
 				client:GetCharacter():GiveMoney(price, price == 0)
-				client:NotifyLocalized("businessSell", name, ax.currencies:Format(price, "default"))
+				client:Notify("businessSell", name, ax.currencies:Format(price, "default"))
 				entity:TakeMoney(price)
 				entity:AddStock(uniqueID)
 
@@ -257,11 +259,11 @@ net.Receive("axVendorTrade", function(length, client)
 				local stock = entity:GetStock(uniqueID)
 
 				if (stock and stock < 1) then
-					return client:NotifyLocalized("vendorNoStock")
+					return client:Notify("vendorNoStock")
 				end
 
 				if (!client:GetCharacter():HasMoney(price)) then
-					return client:NotifyLocalized("canNotAfford")
+					return client:Notify("canNotAfford")
 				end
 
 				if ( !entity:CanSellToPlayer(client, uniqueID) ) then
@@ -272,7 +274,7 @@ net.Receive("axVendorTrade", function(length, client)
 				local name = itemName
 
 				client:GetCharacter():TakeMoney(price, price == 0)
-				client:NotifyLocalized("businessPurchase", name, ax.currencies:Format(price, "default"))
+				client:Notify("businessPurchase", name, ax.currencies:Format(price, "default"))
 
 				entity:GiveMoney(price)
 
@@ -294,6 +296,6 @@ net.Receive("axVendorTrade", function(length, client)
 			MODULE:SaveData()
 			hook.Run("CharacterVendorTraded", client, entity, uniqueID, isSellingToVendor)
 		else
-			client:NotifyLocalized("vendorNoTrade")
+			client:Notify("vendorNoTrade")
 		end
 	end)
