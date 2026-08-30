@@ -77,7 +77,7 @@ function ENT:CanAccess(client)
 	end
 
 	if (bAccess and self.classes and !table.IsEmpty(self.classes)) then
-		local class = ax.class.list[client:GetCharacter():GetClass()]
+		local class = ax.class:Get(client:GetCharacter():GetClass())
 		local classID = class and class.uniqueID
 
 		if (classID and !self.classes[classID]) then
