@@ -13,7 +13,7 @@ function PANEL:Init()
 	self.factions = {}
 	self.classes = {}
 
-	for k, v in ipairs(ix.faction.indices) do
+	for k, v in ipairs(ax.faction.indices) do
 		local panel = self.scroll:Add("DPanel")
 		panel:Dock(TOP)
 		panel:DockPadding(4, 4, 4, 4)
