@@ -21,64 +21,64 @@ SKIN.PrintName = "Parallax Dark Mode"
 SKIN.Author = "Parallax Framework"
 SKIN.DermaVersion = 1
 
--- Dark purple-ish color scheme
-SKIN.bg_alt1 = Color(20, 16, 30, 255)
-SKIN.bg_alt2 = Color(25, 20, 35, 255)
-SKIN.bg_color = Color(25, 20, 35, 255)
-SKIN.bg_color_bright = Color(35, 28, 50, 255)
-SKIN.bg_color_dark = Color(15, 12, 22, 255)
-SKIN.bg_color_sleep = Color(18, 15, 25, 255)
-SKIN.category_header_bg = Color(45, 35, 65, 255)
-SKIN.category_header_bg_closed = Color(35, 28, 50, 255)
-SKIN.colButtonBorder = Color(60, 45, 85, 255)
-SKIN.colButtonBorderHighlight = Color(130, 90, 200, 150)
+-- Dark grey-scale color scheme
+SKIN.bg_alt1 = Color(25, 25, 25, 255)
+SKIN.bg_alt2 = Color(30, 30, 30, 255)
+SKIN.bg_color = Color(30, 30, 30, 255)
+SKIN.bg_color_bright = Color(45, 45, 45, 255)
+SKIN.bg_color_dark = Color(20, 20, 20, 255)
+SKIN.bg_color_sleep = Color(22, 22, 22, 255)
+SKIN.category_header_bg = Color(55, 55, 55, 255)
+SKIN.category_header_bg_closed = Color(40, 40, 40, 255)
+SKIN.colButtonBorder = Color(80, 80, 80, 255)
+SKIN.colButtonBorderHighlight = Color(140, 140, 140, 150)
 SKIN.colButtonBorderShadow = Color(0, 0, 0, 180)
-SKIN.colButtonText = Color(220, 210, 240, 255)
-SKIN.colButtonTextDisabled = Color(100, 90, 120, 255)
-SKIN.colCategoryText = Color(250, 245, 255, 255)
-SKIN.colCategoryTextInactive = Color(200, 195, 215, 255)
-SKIN.colCollapsibleCategory = Color(35, 28, 50, 200)
-SKIN.colMenuBG = Color(30, 24, 42, 245)
-SKIN.colMenuBorder = Color(60, 45, 85, 255)
-SKIN.colNumSliderNotch = Color(80, 60, 110, 150)
-SKIN.colNumberWangBG = Color(35, 28, 50, 255)
-SKIN.colPropertySheet = Color(35, 28, 50, 255)
+SKIN.colButtonText = Color(245, 245, 245, 255)
+SKIN.colButtonTextDisabled = Color(160, 160, 160, 255)
+SKIN.colCategoryText = Color(255, 255, 255, 255)
+SKIN.colCategoryTextInactive = Color(210, 210, 210, 255)
+SKIN.colCollapsibleCategory = Color(40, 40, 40, 200)
+SKIN.colMenuBG = Color(35, 35, 35, 245)
+SKIN.colMenuBorder = Color(80, 80, 80, 255)
+SKIN.colNumSliderNotch = Color(100, 100, 100, 150)
+SKIN.colNumberWangBG = Color(40, 40, 40, 255)
+SKIN.colPropertySheet = Color(40, 40, 40, 255)
 SKIN.colTab = SKIN.colPropertySheet
-SKIN.colTabInactive = Color(25, 20, 35, 255)
+SKIN.colTabInactive = Color(30, 30, 30, 255)
 SKIN.colTabShadow = Color(0, 0, 0, 200)
-SKIN.colTabText = Color(250, 245, 255, 255)
-SKIN.colTabTextInactive = Color(200, 195, 215, 255)
-SKIN.colTextEntryBG = Color(30, 24, 42, 255)
-SKIN.colTextEntryBorder = Color(60, 45, 85, 255)
-SKIN.colTextEntryText = Color(220, 210, 240, 255)
-SKIN.colTextEntryTextCursor = Color(180, 140, 255, 255)
-SKIN.colTextEntryTextHighlight = Color(130, 90, 200, 255)
-SKIN.colTextEntryTextPlaceholder = Color(120, 110, 140, 255)
+SKIN.colTabText = Color(255, 255, 255, 255)
+SKIN.colTabTextInactive = Color(220, 220, 220, 255)
+SKIN.colTextEntryBG = Color(35, 35, 35, 255)
+SKIN.colTextEntryBorder = Color(80, 80, 80, 255)
+SKIN.colTextEntryText = Color(245, 245, 245, 255)
+SKIN.colTextEntryTextCursor = Color(220, 220, 220, 255)
+SKIN.colTextEntryTextHighlight = Color(130, 130, 130, 255)
+SKIN.colTextEntryTextPlaceholder = Color(170, 170, 170, 255)
 SKIN.combobox_selected = SKIN.listview_selected
-SKIN.control_color = Color(80, 60, 110, 255)
-SKIN.control_color_active = Color(130, 90, 200, 255)
-SKIN.control_color_bright = Color(150, 110, 220, 255)
-SKIN.control_color_dark = Color(50, 40, 70, 255)
-SKIN.control_color_highlight = Color(110, 85, 150, 255)
+SKIN.control_color = Color(90, 90, 90, 255)
+SKIN.control_color_active = Color(130, 130, 130, 255)
+SKIN.control_color_bright = Color(160, 160, 160, 255)
+SKIN.control_color_dark = Color(60, 60, 60, 255)
+SKIN.control_color_highlight = Color(120, 120, 120, 255)
 SKIN.fontCategoryHeader = "ax.regular"
 SKIN.fontFrame = "ax.small"
 SKIN.fontTab = "ax.small"
-SKIN.frame_border = Color(60, 45, 85, 255)
-SKIN.listview_hover = Color(45, 35, 65, 255)
-SKIN.listview_selected = Color(100, 70, 150, 255)
-SKIN.panel_transback = Color(25, 20, 35, 150)
-SKIN.tab_bg_active = Color(70, 50, 100, 255)
-SKIN.tab_bg_inactive = Color(35, 25, 50, 255)
+SKIN.frame_border = Color(80, 80, 80, 255)
+SKIN.listview_hover = Color(60, 60, 60, 255)
+SKIN.listview_selected = Color(100, 100, 100, 255)
+SKIN.panel_transback = Color(30, 30, 30, 150)
+SKIN.tab_bg_active = Color(80, 80, 80, 255)
+SKIN.tab_bg_inactive = Color(45, 45, 45, 255)
 SKIN.texGradientDown = Material("gui/gradient_down")
 SKIN.texGradientUp = Material("gui/gradient_up")
-SKIN.text_bright = Color(240, 235, 250, 255)
-SKIN.text_dark = Color(120, 110, 140, 255)
-SKIN.text_highlight = Color(180, 120, 255, 255)
-SKIN.text_normal = Color(200, 195, 215, 255)
-SKIN.tooltip = Color(45, 35, 65, 245)
-SKIN.tree_bg_hover = Color(45, 35, 65, 255)
-SKIN.tree_bg_normal = Color(25, 20, 35, 255)
-SKIN.tree_bg_selected = Color(100, 70, 150, 255)
+SKIN.text_bright = Color(255, 255, 255, 255)
+SKIN.text_dark = Color(180, 180, 180, 255)
+SKIN.text_highlight = Color(220, 220, 220, 255)
+SKIN.text_normal = Color(240, 240, 240, 255)
+SKIN.tooltip = Color(60, 60, 60, 245)
+SKIN.tree_bg_hover = Color(60, 60, 60, 255)
+SKIN.tree_bg_normal = Color(30, 30, 30, 255)
+SKIN.tree_bg_selected = Color(100, 100, 100, 255)
 
 -- Helper functions for drawing UI elements
 local function DrawBorderedBox(x, y, w, h, bg, border, borderSize)
@@ -164,10 +164,10 @@ end
 
 SKIN.Colours = {}
 SKIN.Colours.Button = {}
-SKIN.Colours.Button.Disabled = Color(40, 32, 55, 255)
-SKIN.Colours.Button.Down = Color(130, 90, 200, 255)
-SKIN.Colours.Button.Hover = Color(100, 75, 140, 255)
-SKIN.Colours.Button.Normal = Color(70, 55, 100, 255)
+SKIN.Colours.Button.Disabled = Color(50, 50, 50, 255)
+SKIN.Colours.Button.Down = Color(90, 90, 90, 255)
+SKIN.Colours.Button.Hover = Color(80, 80, 80, 255)
+SKIN.Colours.Button.Normal = Color(60, 60, 60, 255)
 
 -- NOTE:
 -- Derma uses SKIN.Colours.Button for button label text colors.
@@ -180,75 +180,84 @@ SKIN.Colours.ButtonBG.Hover = SKIN.Colours.Button.Hover
 SKIN.Colours.ButtonBG.Normal = SKIN.Colours.Button.Normal
 
 -- Brightened button label text colors.
-SKIN.Colours.Button.Disabled = Color(130, 120, 150, 255)
-SKIN.Colours.Button.Down = Color(180, 120, 255, 255)
-SKIN.Colours.Button.Hover = Color(250, 245, 255, 255)
-SKIN.Colours.Button.Normal = Color(220, 210, 240, 255)
+SKIN.Colours.Button.Disabled = Color(170, 170, 170, 255)
+SKIN.Colours.Button.Down = Color(255, 255, 255, 255)
+SKIN.Colours.Button.Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Button.Normal = Color(245, 245, 245, 255)
 SKIN.Colours.Category = {}
-SKIN.Colours.Category.Header = Color(250, 245, 255, 255)
-SKIN.Colours.Category.Header_Closed = Color(240, 235, 250, 255)
+SKIN.Colours.Category.Header = Color(255, 255, 255, 255)
+SKIN.Colours.Category.Header_Closed = Color(245, 245, 245, 255)
 SKIN.Colours.Category.Line = {}
-SKIN.Colours.Category.Line.Button = Color(70, 55, 100, 255)
-SKIN.Colours.Category.Line.Button_Disabled = Color(40, 32, 55, 255)
-SKIN.Colours.Category.Line.Button_Hover = Color(100, 75, 140, 255)
-SKIN.Colours.Category.Line.Button_Selected = Color(130, 90, 200, 255)
-SKIN.Colours.Category.Line.Text = Color(240, 235, 250, 255)
-SKIN.Colours.Category.Line.Text_Disabled = Color(150, 140, 170, 255)
-SKIN.Colours.Category.Line.Text_Hover = Color(250, 245, 255, 255)
-SKIN.Colours.Category.Line.Text_Selected = Color(255, 250, 255, 255)
+SKIN.Colours.Category.Line.Button = Color(60, 60, 60, 255)
+SKIN.Colours.Category.Line.Button_Disabled = Color(50, 50, 50, 255)
+SKIN.Colours.Category.Line.Button_Hover = Color(80, 80, 80, 255)
+SKIN.Colours.Category.Line.Button_Selected = Color(100, 100, 100, 255)
+SKIN.Colours.Category.Line.Text = Color(245, 245, 245, 255)
+SKIN.Colours.Category.Line.Text_Disabled = Color(170, 170, 170, 255)
+SKIN.Colours.Category.Line.Text_Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Category.Line.Text_Selected = Color(255, 255, 255, 255)
 SKIN.Colours.Category.LineAlt = {}
-SKIN.Colours.Category.LineAlt.Button = Color(65, 50, 90, 255)
-SKIN.Colours.Category.LineAlt.Button_Disabled = Color(38, 30, 52, 255)
-SKIN.Colours.Category.LineAlt.Button_Hover = Color(95, 70, 130, 255)
-SKIN.Colours.Category.LineAlt.Button_Selected = Color(125, 85, 190, 255)
-SKIN.Colours.Category.LineAlt.Text = Color(240, 235, 250, 255)
-SKIN.Colours.Category.LineAlt.Text_Disabled = Color(150, 140, 170, 255)
-SKIN.Colours.Category.LineAlt.Text_Hover = Color(250, 245, 255, 255)
-SKIN.Colours.Category.LineAlt.Text_Selected = Color(255, 250, 255, 255)
+SKIN.Colours.Category.LineAlt.Button = Color(55, 55, 55, 255)
+SKIN.Colours.Category.LineAlt.Button_Disabled = Color(45, 45, 45, 255)
+SKIN.Colours.Category.LineAlt.Button_Hover = Color(75, 75, 75, 255)
+SKIN.Colours.Category.LineAlt.Button_Selected = Color(95, 95, 95, 255)
+SKIN.Colours.Category.LineAlt.Text = Color(245, 245, 245, 255)
+SKIN.Colours.Category.LineAlt.Text_Disabled = Color(170, 170, 170, 255)
+SKIN.Colours.Category.LineAlt.Text_Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Category.LineAlt.Text_Selected = Color(255, 255, 255, 255)
 SKIN.Colours.Label = {}
-SKIN.Colours.Label.Bright = Color(255, 250, 255, 255)
-SKIN.Colours.Label.Dark = Color(240, 235, 250, 255)
-SKIN.Colours.Label.Default = Color(240, 235, 250, 255)
-SKIN.Colours.Label.Highlight = Color(180, 120, 255, 255)
+SKIN.Colours.Label.Bright = Color(255, 255, 255, 255)
+SKIN.Colours.Label.Dark = Color(240, 240, 240, 255)
+SKIN.Colours.Label.Default = Color(240, 240, 240, 255)
+SKIN.Colours.Label.Highlight = Color(200, 200, 200, 255)
 SKIN.Colours.Properties = {}
-SKIN.Colours.Properties.Border = Color(60, 45, 85, 255)
-SKIN.Colours.Properties.Column_Disabled = Color(40, 32, 55, 255)
-SKIN.Colours.Properties.Column_Hover = Color(45, 35, 65, 255)
-SKIN.Colours.Properties.Column_Normal = Color(30, 24, 42, 255)
-SKIN.Colours.Properties.Column_Selected = Color(100, 70, 150, 255)
-SKIN.Colours.Properties.Label_Disabled = Color(150, 140, 170, 255)
-SKIN.Colours.Properties.Label_Hover = Color(250, 240, 255, 255)
-SKIN.Colours.Properties.Label_Normal = Color(240, 235, 250, 255)
-SKIN.Colours.Properties.Label_Selected = Color(255, 250, 255, 255)
-SKIN.Colours.Properties.Line_Hover = Color(45, 35, 65, 255)
-SKIN.Colours.Properties.Line_Normal = Color(25, 20, 35, 255)
-SKIN.Colours.Properties.Line_Selected = Color(100, 70, 150, 255)
-SKIN.Colours.Properties.Title = Color(60, 45, 85, 255)
+SKIN.Colours.Properties.Border = Color(70, 70, 70, 255)
+SKIN.Colours.Properties.Column_Disabled = Color(25, 25, 25, 255)
+SKIN.Colours.Properties.Column_Hover = Color(55, 55, 55, 255)
+SKIN.Colours.Properties.Column_Normal = Color(35, 35, 35, 255)
+SKIN.Colours.Properties.Column_Selected = Color(80, 80, 80, 255)
+SKIN.Colours.Properties.Label_Disabled = Color(170, 170, 170, 255)
+SKIN.Colours.Properties.Label_Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Properties.Label_Normal = Color(245, 245, 245, 255)
+SKIN.Colours.Properties.Label_Selected = Color(255, 255, 255, 255)
+SKIN.Colours.Properties.Line_Hover = Color(60, 60, 60, 255)
+SKIN.Colours.Properties.Line_Normal = Color(35, 35, 35, 255)
+SKIN.Colours.Properties.Line_Selected = Color(90, 90, 90, 255)
+SKIN.Colours.Properties.Title = Color(55, 55, 55, 255)
 SKIN.Colours.Tab = {}
 SKIN.Colours.Tab.Active = {}
-SKIN.Colours.Tab.Active.Disabled = Color(120, 110, 140, 255)
-SKIN.Colours.Tab.Active.Down = Color(180, 120, 255, 255)
-SKIN.Colours.Tab.Active.Hover = Color(250, 245, 255, 255)
-SKIN.Colours.Tab.Active.Normal = Color(240, 235, 250, 255)
+SKIN.Colours.Tab.Active.Disabled = Color(140, 140, 140, 255)
+SKIN.Colours.Tab.Active.Down = Color(255, 255, 255, 255)
+SKIN.Colours.Tab.Active.Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Tab.Active.Normal = Color(245, 245, 245, 255)
 SKIN.Colours.Tab.Inactive = {}
-SKIN.Colours.Tab.Inactive.Disabled = Color(100, 90, 120, 255)
-SKIN.Colours.Tab.Inactive.Down = Color(150, 100, 220, 255)
-SKIN.Colours.Tab.Inactive.Hover = Color(230, 225, 245, 255)
-SKIN.Colours.Tab.Inactive.Normal = Color(200, 195, 215, 255)
-SKIN.Colours.TooltipText = Color(220, 210, 240, 255)
+SKIN.Colours.Tab.Inactive.Disabled = Color(120, 120, 120, 255)
+SKIN.Colours.Tab.Inactive.Down = Color(240, 240, 240, 255)
+SKIN.Colours.Tab.Inactive.Hover = Color(230, 230, 230, 255)
+SKIN.Colours.Tab.Inactive.Normal = Color(210, 210, 210, 255)
+SKIN.Colours.TooltipText = Color(245, 245, 245, 255)
 SKIN.Colours.Tree = {}
-SKIN.Colours.Tree.Hover = Color(250, 245, 255, 255)
-SKIN.Colours.Tree.Lines = Color(140, 120, 180, 255)
-SKIN.Colours.Tree.Normal = Color(240, 235, 250, 255)
-SKIN.Colours.Tree.Selected = Color(180, 120, 255, 255)
+SKIN.Colours.Tree.Hover = Color(255, 255, 255, 255)
+SKIN.Colours.Tree.Lines = Color(120, 120, 120, 255)
+SKIN.Colours.Tree.Normal = Color(240, 240, 240, 255)
+SKIN.Colours.Tree.Selected = Color(200, 200, 200, 255)
 SKIN.Colours.Window = {}
-SKIN.Colours.Window.TitleActive = Color(130, 90, 200, 255)
-SKIN.Colours.Window.TitleInactive = Color(60, 45, 85, 255)
+SKIN.Colours.Window.TitleActive = Color(110, 110, 110, 255)
+SKIN.Colours.Window.TitleInactive = Color(70, 70, 70, 255)
 
 --[[---------------------------------------------------------
 	Panel
 -----------------------------------------------------------]]
 function SKIN:PaintPanel(panel, w, h)
+    if not panel.m_bBackground then return end
+    local bgColor = panel.m_bgColor or self.bg_color
+    DrawRoundedBox(0, 0, w, h, bgColor, 4)
+end
+
+--[[---------------------------------------------------------
+	EditablePanel
+-----------------------------------------------------------]]
+function SKIN:PaintEditablePanel(panel, w, h)
     if not panel.m_bBackground then return end
     local bgColor = panel.m_bgColor or self.bg_color
     DrawRoundedBox(0, 0, w, h, bgColor, 4)
@@ -316,11 +325,11 @@ end
 function SKIN:PaintCheckBox(panel, w, h)
     local enabled = panel:IsEnabled()
     local checked = panel:GetChecked()
-    local bg = enabled and Color(30, 24, 42, 255) or Color(20, 16, 30, 255)
-    local border = enabled and Color(80, 60, 110, 255) or Color(50, 40, 70, 255)
+    local bg = enabled and Color(40, 40, 40, 255) or Color(25, 25, 25, 255)
+    local border = enabled and Color(90, 90, 90, 255) or Color(60, 60, 60, 255)
     DrawBorderedBox(0, 0, w, h, bg, border, 1)
     if checked then
-        local checkColor = enabled and Color(130, 90, 200, 255) or Color(80, 60, 110, 255)
+        local checkColor = enabled and Color(160, 160, 160, 255) or Color(100, 100, 100, 255)
         surface.SetDrawColor(checkColor.r, checkColor.g, checkColor.b, checkColor.a)
         surface.DrawLine(3, h / 2, w / 2, h - 3)
         surface.DrawLine(w / 2, h - 3, w - 3, 3)
@@ -335,15 +344,15 @@ end
 function SKIN:PaintRadioButton(panel, w, h)
     local enabled = panel:IsEnabled()
     local checked = panel:GetChecked()
-    local bg = enabled and Color(30, 24, 42, 255) or Color(20, 16, 30, 255)
-    local border = enabled and Color(80, 60, 110, 255) or Color(50, 40, 70, 255)
+    local bg = enabled and Color(40, 40, 40, 255) or Color(25, 25, 25, 255)
+    local border = enabled and Color(90, 90, 90, 255) or Color(60, 60, 60, 255)
     surface.SetDrawColor(border.r, border.g, border.b, border.a)
     draw.NoTexture()
     surface.DrawCircle(w / 2, h / 2, w / 2, border.r, border.g, border.b, border.a)
     surface.SetDrawColor(bg.r, bg.g, bg.b, bg.a)
     surface.DrawCircle(w / 2, h / 2, w / 2 - 1, bg.r, bg.g, bg.b, bg.a)
     if checked then
-        local checkColor = enabled and Color(130, 90, 200, 255) or Color(80, 60, 110, 255)
+        local checkColor = enabled and Color(160, 160, 160, 255) or Color(100, 100, 100, 255)
         surface.SetDrawColor(checkColor.r, checkColor.g, checkColor.b, checkColor.a)
         surface.DrawCircle(w / 2, h / 2, w / 2 - 3, checkColor.r, checkColor.g, checkColor.b, checkColor.a)
     end
@@ -368,8 +377,8 @@ function SKIN:PaintTextEntry(panel, w, h)
     if panel.m_bBackground then
         local bg, border
         if not panel:IsEnabled() then
-            bg = Color(20, 16, 30, 255)
-            border = Color(50, 40, 70, 255)
+            bg = Color(25, 25, 25, 255)
+            border = Color(60, 60, 60, 255)
         elseif panel:HasFocus() then
             bg = self.colTextEntryBG
             border = self.control_color_active
@@ -407,7 +416,7 @@ end
 	Menu Spacer
 -----------------------------------------------------------]]
 function SKIN:PaintMenuSpacer(panel, w, h)
-    surface.SetDrawColor(60, 45, 85, 255)
+    surface.SetDrawColor(70, 70, 70, 255)
     surface.DrawRect(0, 0, w, h)
 end
 
@@ -421,7 +430,7 @@ function SKIN:PaintMenuOption(panel, w, h)
     end
 
     if panel.m_bBackground and panel:IsEnabled() and (panel.Hovered or panel.Highlight) then
-        surface.SetDrawColor(45, 35, 65, 255)
+        surface.SetDrawColor(60, 60, 60, 255)
         surface.DrawRect(0, 0, w, h)
     end
 
@@ -432,7 +441,7 @@ function SKIN:PaintMenuOption(panel, w, h)
         }, 15, 15)
     else
         if panel:GetChecked() then
-            local checkColor = panel:IsEnabled() and Color(130, 90, 200, 255) or Color(80, 60, 110, 255)
+            local checkColor = panel:IsEnabled() and Color(160, 160, 160, 255) or Color(100, 100, 100, 255)
             surface.SetDrawColor(checkColor.r, checkColor.g, checkColor.b, checkColor.a)
             surface.DrawLine(5 + 3, h / 2, 5 + 7, h / 2 + 4)
             surface.DrawLine(5 + 7, h / 2 + 4, 5 + 12, h / 2 - 4)
@@ -531,14 +540,14 @@ end
 	VScrollBar
 -----------------------------------------------------------]]
 function SKIN:PaintVScrollBar(panel, w, h)
-    DrawRoundedBox(0, 0, w, h, Color(20, 16, 30, 255), 2)
+    DrawRoundedBox(0, 0, w, h, Color(25, 25, 25, 255), 2)
 end
 
 --[[---------------------------------------------------------
 	HScrollBar
 -----------------------------------------------------------]]
 function SKIN:PaintHScrollBar(panel, w, h)
-    DrawRoundedBox(0, 0, w, h, Color(20, 16, 30, 255), 2)
+    DrawRoundedBox(0, 0, w, h, Color(25, 25, 25, 255), 2)
 end
 
 --[[---------------------------------------------------------
@@ -664,8 +673,8 @@ end
 function SKIN:PaintComboBox(panel, w, h)
     local bg, border
     if not panel:IsEnabled() then
-        bg = Color(20, 16, 30, 255)
-        border = Color(50, 40, 70, 255)
+        bg = Color(25, 25, 25, 255)
+        border = Color(60, 60, 60, 255)
     elseif panel.Depressed or panel:IsMenuOpen() then
         bg = self.colTextEntryBG
         border = self.control_color_active
@@ -741,12 +750,12 @@ end
 function SKIN:PaintTreeNodeButton(panel, w, h)
     if not panel.m_bSelected then return end
     local panelW, _ = panel:GetTextSize()
-    surface.SetDrawColor(100, 70, 150, 100)
+    surface.SetDrawColor(90, 90, 90, 100)
     surface.DrawRect(38, 0, panelW + 6, h)
 end
 
 function SKIN:PaintSelection(panel, w, h)
-    surface.SetDrawColor(100, 70, 150, 100)
+    surface.SetDrawColor(90, 90, 90, 100)
     surface.DrawRect(0, 0, w, h)
 end
 
@@ -787,7 +796,7 @@ end
 
 function SKIN:PaintProgress(panel, w, h)
     DrawBorderedBox(0, 0, w, h, self.bg_color_dark, self.frame_border, 1)
-    local progressCol = Color(130, 90, 200, 255)
+    local progressCol = Color(140, 140, 140, 255)
     DrawRoundedBox(2, 2, (w - 4) * panel:GetFraction(), h - 4, progressCol, 2)
 end
 
@@ -837,13 +846,13 @@ end
 
 function SKIN:PaintListViewLine(panel, w, h)
     if panel:IsSelected() then
-        surface.SetDrawColor(100, 70, 150, 255)
+        surface.SetDrawColor(100, 100, 100, 255)
         surface.DrawRect(0, 0, w, h)
     elseif panel.Hovered then
-        surface.SetDrawColor(45, 35, 65, 255)
+        surface.SetDrawColor(65, 65, 65, 255)
         surface.DrawRect(0, 0, w, h)
     elseif panel.m_bAlt then
-        surface.SetDrawColor(20, 16, 30, 255)
+        surface.SetDrawColor(28, 28, 28, 255)
         surface.DrawRect(0, 0, w, h)
     end
 end
@@ -854,12 +863,121 @@ function SKIN:PaintListView(panel, w, h)
 end
 
 function SKIN:PaintTooltip(panel, w, h)
-    DrawBorderedBox(0, 0, w, h, self.tooltip, Color(80, 60, 110, 255), 1)
+    DrawBorderedBox(0, 0, w, h, self.tooltip, Color(100, 100, 100, 255), 1)
 end
 
 function SKIN:PaintMenuBar(panel, w, h)
-    DrawRoundedBox(0, 0, w, h, Color(30, 24, 42, 255), 0)
+    DrawRoundedBox(0, 0, w, h, Color(35, 35, 35, 255), 0)
 end
 
-derma.DefineSkin("Parallax", "Parallax Dark Mode skin with purple accents", SKIN)
+function SKIN:PaintLabel(panel, w, h)
+    if not panel.m_bBackground then return end
+    DrawRoundedBox(0, 0, w, h, self.bg_color, 4)
+end
+
+function SKIN:PaintDermaList(panel, w, h)
+    DrawBorderedBox(0, 0, w, h, self.bg_color_dark, self.colTextEntryBorder, 1)
+end
+
+function SKIN:PaintGenericPanel(panel, w, h)
+    if not panel.m_bBackground then return end
+    local bgColor = panel.m_bgColor or self.bg_color
+    DrawRoundedBox(0, 0, w, h, bgColor, 4)
+end
+
+
+--[[---------------------------------------------------------
+    DProperties - Parallax Fix
+
+    GMod's stock DProperties control creates an internal
+    category container which paints itself pure white.
+    That container is not painted through the Derma skin,
+    so normal skin color overrides alone cannot affect it.
+
+    This patches DProperties:GetCategory so every category
+    created by DProperties uses the Parallax palette.
+-----------------------------------------------------------]]
+
+local function ParallaxPatchDProperties()
+    local control = vgui.GetControlTable("DProperties")
+
+    if (!control or !control.GetCategory) then
+        return false
+    end
+
+    if (control._ParallaxDPropertiesPatched) then
+        return true
+    end
+
+    local oldGetCategory = control.GetCategory
+
+    control.GetCategory = function(self, name, bCreate)
+        local category = oldGetCategory(self, name, bCreate)
+
+        if (!IsValid(category)) then
+            return category
+        end
+
+        if (!category._ParallaxDPropertiesPatched) then
+            category._ParallaxDPropertiesPatched = true
+
+            -- The stock DProperties category has a white
+            -- container here. Replace it with the skin palette.
+            if (IsValid(category.Container)) then
+                category.Container.Paint = function(panel, w, h)
+                    local skin = panel:GetSkin()
+
+                    local color = skin.Colours.Properties.Line_Normal
+                        or skin.bg_color_dark
+                        or Color(30, 30, 30, 255)
+
+                    surface.SetDrawColor(
+                        color.r,
+                        color.g,
+                        color.b,
+                        color.a
+                    )
+
+                    surface.DrawRect(0, 0, w, h)
+                end
+            end
+
+            -- Make the category header use the Parallax header
+            -- color instead of inheriting a light default.
+            if (IsValid(category.Header)) then
+                category.Header.Paint = function(panel, w, h)
+                    local skin = panel:GetSkin()
+                    local color = skin.category_header_bg
+
+                    surface.SetDrawColor(
+                        color.r,
+                        color.g,
+                        color.b,
+                        color.a
+                    )
+
+                    surface.DrawRect(0, 0, w, h)
+                end
+            end
+        end
+
+        return category
+    end
+
+    control._ParallaxDPropertiesPatched = true
+
+    return true
+end
+
+-- DProperties normally already exists when a Derma skin is loaded.
+-- The timer fallback also handles unusual load-order cases.
+if (!ParallaxPatchDProperties()) then
+    timer.Create("ParallaxPatchDProperties", 0.1, 50, function()
+        if (ParallaxPatchDProperties()) then
+            timer.Remove("ParallaxPatchDProperties")
+        end
+    end)
+end
+
+derma.DefineSkin("Parallax", "Parallax Dark Mode skin with grey scale", SKIN)
 hook.Add("ForceDermaSkin", "SetDefaultDermaSkin", function() return "Parallax" end)
