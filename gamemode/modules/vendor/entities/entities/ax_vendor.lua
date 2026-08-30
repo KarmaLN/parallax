@@ -95,7 +95,7 @@ function ENT:GetStock(uniqueID)
 end
 
 function ENT:GetPrice(uniqueID, selling)
-	local itemTable = ax.item.list[uniqueID]
+	local itemTable = ax.item.stored[uniqueID]
 
 	if (!itemTable) then
 		return 0
@@ -113,7 +113,7 @@ end
 function ENT:CanSellToPlayer(client, uniqueID)
 	local data = self.items[uniqueID]
 
-	if (!data or !client:GetCharacter() or !ax.item.list[uniqueID]) then
+	if (!data or !client:GetCharacter() or !ax.item.stored[uniqueID]) then
 		return false
 	end
 
@@ -135,7 +135,7 @@ end
 function ENT:CanBuyFromPlayer(client, uniqueID)
 	local data = self.items[uniqueID]
 
-	if (!data or !client:GetCharacter() or !ax.item.list[uniqueID]) then
+	if (!data or !client:GetCharacter() or !ax.item.stored[uniqueID]) then
 		return false
 	end
 
@@ -143,7 +143,7 @@ function ENT:CanBuyFromPlayer(client, uniqueID)
 		return false
 	end
 
-	if (!self:HasMoney(data[VENDOR_PRICE] or ax.item.list[uniqueID].price or 0)) then
+	if (!self:HasMoney(data[VENDOR_PRICE] or ax.item.stored[uniqueID].price or 0)) then
 		return false
 	end
 

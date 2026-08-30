@@ -24,7 +24,7 @@ function PANEL:Init()
 	self.ourName = header:Add("DLabel")
 	self.ourName:Dock(RIGHT)
 	self.ourName:SetWide(self:GetWide() * 0.5 - 7)
-	self.ourName:SetText(L"you".." ("..ax.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
+	self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")")
 	self.ourName:SetTextInset(0, 0)
 	self.ourName:SetTextColor(color_white)
 	self.ourName:SetFont("ax.small")
@@ -175,8 +175,8 @@ function PANEL:Think()
 
 	if ((self.nextUpdate or 0) < CurTime()) then
 		self:SetTitle(self.entity:GetDisplayName())
-		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ax.currency.Get(entity.money)..")" or ""))
-		self.ourName:SetText(L"you".." ("..ax.currency.Get(LocalPlayer():GetCharacter():GetMoney())..")")
+		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ax.currencies:Format(entity.money, "default")..")" or ""))
+		self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")")
 
 		self.nextUpdate = CurTime() + 0.25
 	end
@@ -186,9 +186,9 @@ function PANEL:OnItemSelected(panel)
 	local price = self.entity:GetPrice(panel.item, panel.isLocal)
 
 	if (panel.isLocal) then
-		self.vendorBuy:SetText(L"sell".." ("..ax.currency.Get(price)..")")
+		self.vendorBuy:SetText(L"sell".." ("..ax.currencies:Format(price, "default")..")")
 	else
-		self.vendorSell:SetText(L"purchase".." ("..ax.currency.Get(price)..")")
+		self.vendorSell:SetText(L"purchase".." ("..ax.currencies:Format(price, "default")..")")
 	end
 end
 
@@ -264,7 +264,7 @@ end
 
 function PANEL:Paint(w, h)
 	if (ax.gui.vendor.activeBuy == self or ax.gui.vendor.activeSell == self) then
-		surface.SetDrawColor(ax.config.Get("color"))
+		surface.SetDrawColor(ax.config:Get("color"))
 	else
 		surface.SetDrawColor(0, 0, 0, 100)
 	end

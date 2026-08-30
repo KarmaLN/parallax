@@ -35,7 +35,29 @@ VENDOR_SELLONLY = 2
 -- Only buy the item from the player.
 VENDOR_BUYONLY = 3
 
+local DATA_OPTIONS = {
+	scope = "map",
+	human = true,
+}
+
+local function GetVendorDataKey()
+	return "module_vendor"
+end
+
 if (SERVER) then
+	function MODULE:GetData()
+		local data = ax.data:Get(GetVendorDataKey(), {}, DATA_OPTIONS)
+		if ( !istable(data) ) then
+			return {}
+		end
+
+		return data
+	end
+
+	function MODULE:SetData(data)
+		return ax.data:Set(GetVendorDataKey(), istable(data) and data or {}, DATA_OPTIONS)
+	end
+
 	function MODULE:SaveData()
 		local data = {}
 
@@ -87,7 +109,7 @@ if (SERVER) then
 
 			local items = {}
 
-			for uniqueID, data in pairs(v.items) do
+			for uniqueID, data in pairs(v.items or {}) do
 				items[tostring(uniqueID)] = data
 			end
 
@@ -97,6 +119,10 @@ if (SERVER) then
 			entity.money = v.money
 			entity.scale = v.scale or 0.5
 		end
+	end
+
+	function MODULE:OnLoaded()
+		self:LoadData()
 	end
 
 	function MODULE:CanVendorSellItem(client, vendor, itemID)
@@ -114,22 +140,22 @@ if (SERVER) then
 		return true
 	end
 
-	ax.log.AddType("vendorUse", function(client, ...)
-		local arg = {...}
-		return string.format("%s used the '%s' vendor.", client:Name(), arg[1])
-	end)
+	if ( ax.log and isfunction(ax.log.AddType) ) then
+		ax.log.AddType("vendorUse", function(client, ...)
+			local arg = {...}
+			return string.format("%s used the '%s' vendor.", client:Name(), arg[1])
+		end)
 
-	ax.log.AddType("vendorBuy", function(client, ...)
-		local arg = {...}
+		ax.log.AddType("vendorBuy", function(client, ...)
+			local arg = {...}
+			return string.format("%s purchased a '%s' from the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+		end)
 
-		return string.format("%s purchased a '%s' from the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
-	end)
-
-	ax.log.AddType("vendorSell", function(client, ...)
-		local arg = {...}
-
-		return string.format("%s sold a '%s' to the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
-	end)
+		ax.log.AddType("vendorSell", function(client, ...)
+			local arg = {...}
+			return string.format("%s sold a '%s' to the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+		end)
+	end
 else
 end
 

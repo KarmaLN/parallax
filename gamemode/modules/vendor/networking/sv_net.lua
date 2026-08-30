@@ -226,11 +226,11 @@ net.Receive("axVendorTrade", function(length, client)
 
 				local invOkay = true
 
-				for k, _ in client:GetCharacter():GetInventory():Iter() do
-					if (k.uniqueID == uniqueID and k:GetID() != 0 and ax.item.instances[k:GetID()] and k:GetData("equip", false) == false) then
-						invOkay = k:Remove()
+				for _, item in pairs(client:GetCharacter():GetInventory():GetItems()) do
+					if (item.class == uniqueID and item:GetID() != 0 and ax.item.instances[item:GetID()] and item:GetData("equip", false) == false) then
+						invOkay = item:Remove()
 						found = true
-						name = L(k.name, client)
+						name = L(item.name, client)
 
 						break
 					end
@@ -246,11 +246,13 @@ net.Receive("axVendorTrade", function(length, client)
 				end
 
 				client:GetCharacter():GiveMoney(price, price == 0)
-				client:NotifyLocalized("businessSell", name, ax.currency.Get(price))
+				client:NotifyLocalized("businessSell", name, ax.currencies:Format(price, "default"))
 				entity:TakeMoney(price)
 				entity:AddStock(uniqueID)
 
-				ax.log.Add(client, "vendorSell", name, entity:GetDisplayName(), ax.currency.Get(price))
+				if ( ax.log and isfunction(ax.log.Add) ) then
+					ax.log:Add(client, "vendorSell", name, entity:GetDisplayName(), ax.currencies:Format(price, "default"))
+				end
 			else
 				local stock = entity:GetStock(uniqueID)
 
@@ -262,19 +264,19 @@ net.Receive("axVendorTrade", function(length, client)
 					return client:NotifyLocalized("canNotAfford")
 				end
 
-				if !entity:CanSellToPlayer(client, uniqueID) then
+				if ( !entity:CanSellToPlayer(client, uniqueID) ) then
 					return false
 				end
 
-				local name = L(ax.item.list[uniqueID].name, client)
+				local name = L(ax.item.stored[uniqueID].name, client)
 
 				client:GetCharacter():TakeMoney(price, price == 0)
-				client:NotifyLocalized("businessPurchase", name, ax.currency.Get(price))
+				client:NotifyLocalized("businessPurchase", name, ax.currencies:Format(price, "default"))
 
 				entity:GiveMoney(price)
 
 				if (!client:GetCharacter():GetInventory():Add(uniqueID)) then
-					ax.item.Spawn(uniqueID, client)
+					ax.item:Spawn(uniqueID, client:GetPos() + Vector(0, 0, 8), Angle(0, 0, 0))
 				else
 					net.Start("axVendorAddItem")
 						net.WriteString(uniqueID)
@@ -283,7 +285,9 @@ net.Receive("axVendorTrade", function(length, client)
 
 				entity:TakeStock(uniqueID)
 
-				ax.log.Add(client, "vendorBuy", name, entity:GetDisplayName(), ax.currency.Get(price))
+				if ( ax.log and isfunction(ax.log.Add) ) then
+					ax.log:Add(client, "vendorBuy", name, entity:GetDisplayName(), ax.currencies:Format(price, "default"))
+				end
 			end
 
 			MODULE:SaveData()
