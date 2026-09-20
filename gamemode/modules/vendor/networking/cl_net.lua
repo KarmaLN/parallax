@@ -42,8 +42,6 @@ VENDOR_TEXT = {}
 		entity.scale = net.ReadFloat()
 		entity.messages = net.ReadTable()
 		entity.factions = net.ReadTable()
-		entity.classes = net.ReadTable()
-		entity.availableClasses = net.ReadTable()
 
 		ax.gui.vendor = vgui.Create("axVendor")
 		ax.gui.vendor:SetReadOnly(true)
@@ -173,16 +171,6 @@ VENDOR_TEXT = {}
 			if (IsValid(editPanel) and IsValid(editPanel.ranks[uniqueID])) then
 				editPanel.ranks[uniqueID].noSend = true
 				editPanel.ranks[uniqueID]:SetText(minimumRank, true, true)
-			end
-		elseif (key == "class") then
-			local uniqueID = data[1]
-			local state = data[2]
-			local editPanel = ax.gui.editorFaction
-
-			entity.classes[uniqueID] = state
-
-			if (IsValid(editPanel) and IsValid(editPanel.classes[uniqueID])) then
-				editPanel.classes[uniqueID]:SetChecked(state == true)
 			end
 		elseif (key == "model") then
 			editor.model:SetText(entity:GetModel())

@@ -30,7 +30,6 @@ function ENT:Initialize()
 		self.items = {}
 		self.messages = {}
 		self.factions = {}
-		self.classes = {}
 
 		self:SetDisplayName("John Doe")
 		self:SetDescription("")
@@ -87,15 +86,6 @@ function ENT:CanAccess(client)
 		end
 	end
 
-	if (self.classes and !table.IsEmpty(self.classes)) then
-		local class = ax.class:Get(character:GetClass())
-		local classID = class and class.id
-
-		if (!classID or !self.classes[classID]) then
-			return false
-		end
-	end
-
 	return true
 end
 
@@ -128,7 +118,7 @@ function ENT:CanSellToPlayer(client, uniqueID)
 		return false
 	end
 
-	if (data[VENDOR_MODE] == VENDOR_SELLONLY) then
+	if (data[VENDOR_MODE] == VENDOR_BUYONLY) then
 		return false
 	end
 
@@ -164,7 +154,7 @@ end
 
 function ENT:HasMoney(amount)
 	-- Vendor not using money system so they can always afford it.
-	if (!self.money) then
+	if (self.money == nil) then
 		return true
 	end
 
@@ -264,13 +254,13 @@ if (SERVER) then
 	end
 
 	function ENT:GiveMoney(value)
-		if (self.money) then
+		if (self.money != nil) then
 			self:SetMoney(self:GetMoney() + value)
 		end
 	end
 
 	function ENT:TakeMoney(value)
-		if (self.money) then
+		if (self.money != nil) then
 			self:GiveMoney(-value)
 		end
 	end

@@ -139,25 +139,12 @@ net.Receive("axVendorEdit", function(length, client)
 
 			data = {uniqueID, entity.factions[uniqueID]}
 			UpdateEditReceivers(entity.receivers, key, data)
-		elseif (key == "class") then
-			local class = ax.class:Get(data)
-
-			if (class) then
-				entity.classes[data] = !entity.classes[data]
-
-				if (!entity.classes[data]) then
-					entity.classes[data] = nil
-				end
-			end
-
-			local uniqueID = data
-			data = {uniqueID, entity.classes[uniqueID]}
 		elseif (key == "model") then
 			entity:SetModel(data)
 			entity:InitPhysObj()
 			entity:SetAnim()
 		elseif (key == "useMoney") then
-			if (entity.money) then
+			if (entity.money != nil) then
 				entity:SetMoney()
 			else
 				entity:SetMoney(0)

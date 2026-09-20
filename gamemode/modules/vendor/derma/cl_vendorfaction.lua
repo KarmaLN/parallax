@@ -28,10 +28,7 @@ function PANEL:Init()
 	self.scroll:DockPadding(0, 0, 0, paddingY)
 
 	self.factions = {}
-	self.classes = {}
 	self.ranks = {}
-
-	local availableClasses = self.entity.availableClasses or {}
 
 	for factionID, faction in pairs(ax.faction:GetAll() or {}) do
 		if (!istable(faction)) then
@@ -92,48 +89,6 @@ function PANEL:Init()
 
 		self.ranks[factionKey] = rank
 
-		-- Add classes belonging to this faction.
-		for _, classData in pairs(availableClasses) do
-			if (!istable(classData)) then
-				continue
-			end
-
-			local classFaction = classData.faction
-
-			if (istable(classFaction)) then
-				classFaction = classFaction.id
-			end
-
-			if (classFaction != factionKey) then
-				continue
-			end
-
-			local classID = classData.id
-
-			if (!classID) then
-				continue
-			end
-
-			local class = panel:Add("DCheckBoxLabel")
-			class:Dock(TOP)
-			class:DockMargin(
-				ax.util:ScreenScale(16),
-				0,
-				0,
-				paddingY / 2
-			)
-
-			class:SetText(
-				L(classData.name or classID)
-			)
-
-			class.OnChange = function(this, state)
-				self:updateVendor("class", classID)
-			end
-
-			self.classes[classID] = class
-		end
-
 		panel:SizeToChildren(false, true)
 	end
 end
@@ -154,13 +109,6 @@ function PANEL:Setup()
 				true,
 				true
 			)
-		end
-	end
-
-	for classID, value in pairs(self.entity.classes or {}) do
-		if (IsValid(self.classes[classID])) then
-			self.classes[classID].noSend = true
-			self.classes[classID]:SetChecked(value == true)
 		end
 	end
 end

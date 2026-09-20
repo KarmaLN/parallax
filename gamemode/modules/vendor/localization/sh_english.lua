@@ -15,7 +15,6 @@ ax.localization:Register("en", {
     ["vendorFaction"] = "Access Restrictions",
     ["vendorMinimumRank"] = "Minimum rank sort order",
     ["vendorRankOrder"] = "e.g. 5",
-    ["vendorClasses"] = "Classes",
     ["vendorNoBubble"] = "Hide Vendor Bubble",
     ["vendorUseMoney"] = "Use Limited Money",
     ["vendorSellScale"] = "Sell Price Multiplier",

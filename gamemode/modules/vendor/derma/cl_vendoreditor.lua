@@ -153,11 +153,32 @@ function PANEL:Init()
 	self.items = self:Add("DListView")
 	self.items:Dock(FILL)
 	self.items:DockMargin(0, marginY, 0, 0)
-	self.items:AddColumn(L"name").Header:SetTextColor(color_black)
-	self.items:AddColumn(L"category").Header:SetTextColor(color_black)
-	self.items:AddColumn(L"mode").Header:SetTextColor(color_black)
-	self.items:AddColumn(L"price").Header:SetTextColor(color_black)
-	self.items:AddColumn(L"stock").Header:SetTextColor(color_black)
+
+	local columns = {
+		self.items:AddColumn(L"name"),
+		self.items:AddColumn(L"category"),
+		self.items:AddColumn(L"mode"),
+		self.items:AddColumn(L"price"),
+		self.items:AddColumn(L"stock")
+	}
+
+	for index, column in ipairs(columns) do
+		column.Header:SetTextColor(color_black)
+		column.Header.DoClick = function()
+			if (self.sortColumn == index) then
+				self.sortDescending = !self.sortDescending
+			else
+				self.sortColumn = index
+				self.sortDescending = false
+			end
+
+			self:ReloadItemList(self.searchBar:GetText())
+		end
+	end
+
+	self.sortColumn = 1
+	self.sortDescending = false
+
 	self.items:SetMultiSelect(false)
 	self.items.OnRowRightClick = function(this, index, line)
 		if (IsValid(menu)) then
@@ -253,29 +274,70 @@ end
 
 function PANEL:ReloadItemList(filter)
 	local entity = ax.gui.vendor.entity
+	filter = string.Trim(string.lower(filter or ""))
 	self.lines = {}
 
 	self.items:Clear()
 
+	local entries = {}
+
 	for k, v in SortedPairs(ax.item.stored) do
 		local itemName = v.GetName and v:GetName() or L(v.name)
+		local category = v.category or L"none"
+		local searchText = string.lower(table.concat({
+			tostring(k),
+			tostring(itemName),
+			tostring(category)
+		}, " "))
 
-		if (filter and !itemName:lower():find(filter:lower(), 1, false)) then
+		if (filter != "" and !searchText:find(filter, 1, true)) then
 			continue
 		end
 
 		local mode = entity.items[k] and entity.items[k][VENDOR_MODE]
 		local current, max = entity:GetStock(k)
+		entries[#entries + 1] = {
+			id = k,
+			name = itemName,
+			category = category,
+			mode = mode and L(VENDOR_TEXT[mode]) or L"none",
+			price = entity:GetPrice(k),
+			stock = max and current.."/"..max or "-",
+			stockValue = current or -1
+		}
+	end
+
+	table.sort(entries, function(first, second)
+		local firstValue = first[self.sortColumn == 1 and "name" or self.sortColumn == 2 and "category" or self.sortColumn == 3 and "mode" or self.sortColumn == 4 and "price" or "stockValue"]
+		local secondValue = second[self.sortColumn == 1 and "name" or self.sortColumn == 2 and "category" or self.sortColumn == 3 and "mode" or self.sortColumn == 4 and "price" or "stockValue"]
+
+		if (isstring(firstValue)) then
+			firstValue = firstValue:lower()
+			secondValue = secondValue:lower()
+		end
+
+		if (firstValue == secondValue) then
+			return first.id < second.id
+		end
+
+		if (self.sortDescending) then
+			return firstValue > secondValue
+		end
+
+		return firstValue < secondValue
+	end)
+
+	for _, entry in ipairs(entries) do
 		local panel = self.items:AddLine(
-			itemName,
-			v.category or L"none",
-			mode and L(VENDOR_TEXT[mode]) or L"none",
-			entity:GetPrice(k),
-			max and current.."/"..max or "-"
+			entry.name,
+			entry.category,
+			entry.mode,
+			entry.price,
+			entry.stock
 		)
 
-		panel.item = k
-		self.lines[k] = panel
+		panel.item = entry.id
+		self.lines[entry.id] = panel
 	end
 end
 

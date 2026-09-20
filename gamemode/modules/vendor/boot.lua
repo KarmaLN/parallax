@@ -1,4 +1,3 @@
-
 local MODULE = MODULE
 
 MODULE.name = "Vendors"
@@ -8,362 +7,217 @@ MODULE.description = "Adds vendors that can be placed on the map."
 ax.util:Include("parallax/gamemode/modules/vendor/localization/sh_english.lua", "shared")
 
 CAMI.RegisterPrivilege({
-	Name = "Parallax - Manage Vendors",
-	MinAccess = "admin"
+    Name = "Parallax - Manage Vendors",
+    MinAccess = "admin"
 })
 
 VENDOR_BUY = 1
 VENDOR_SELL = 2
 VENDOR_BOTH = 3
 
--- Keys for vendor messages.
 VENDOR_WELCOME = 1
 VENDOR_LEAVE = 2
 VENDOR_NOTRADE = 3
 
--- Keys for item information.
 VENDOR_PRICE = 1
 VENDOR_STOCK = 2
 VENDOR_MODE = 3
 VENDOR_MAXSTOCK = 4
 
--- Sell and buy the item.
 VENDOR_SELLANDBUY = 1
-
--- Only sell the item to the player.
 VENDOR_SELLONLY = 2
-
--- Only buy the item from the player.
 VENDOR_BUYONLY = 3
 
 local DATA_OPTIONS = {
-	scope = "map",
-	human = true,
+    scope = "map",
+    human = true
 }
 
 local function GetVendorDataKey()
-	return "module_vendor"
+    return "module_vendor"
 end
 
 if (SERVER) then
-	function MODULE:Notify(client, phrase, notificationType, ...)
-		local language = client:GetLanguage()
-		local translations = ax.localization.langs[language]
+    function MODULE:Notify(client, phrase, notificationType, ...)
+        local language = client:GetLanguage()
+        local translations = ax.localization.langs[language]
 
-		if (!istable(translations) and isstring(language)) then
-			translations = ax.localization.langs[string.Explode("-", language)[1]]
-		end
+        if (!istable(translations) and isstring(language)) then
+            translations = ax.localization.langs[string.Explode("-", language)[1]]
+        end
 
-		translations = istable(translations) and translations or ax.localization.langs.en or {}
+        translations = istable(translations) and translations or ax.localization.langs.en or {}
 
-		local message = translations[phrase] or phrase
-		local arguments = {...}
+        local message = translations[phrase] or phrase
+        local arguments = {...}
 
-		if (#arguments > 0) then
-			message = string.format(message, unpack(arguments))
-		end
+        if (#arguments > 0) then
+            message = string.format(message, unpack(arguments))
+        end
 
-		client:Notify(message, notificationType)
-	end
+        client:Notify(message, notificationType)
+    end
 
-	function MODULE:GetData()
-		local data = ax.data:Get(GetVendorDataKey(), {}, DATA_OPTIONS)
+    function MODULE:GetData()
+        local data = ax.data:Get(GetVendorDataKey(), {}, DATA_OPTIONS)
+        return istable(data) and data or {}
+    end
 
-		if (!istable(data)) then
-			return {}
-		end
+    function MODULE:SetData(data)
+        return ax.data:Set(GetVendorDataKey(), istable(data) and data or {}, DATA_OPTIONS)
+    end
 
-		return data
-	end
+    function MODULE:SaveData()
+        local data = {}
 
-	function MODULE:SetData(data)
-		return ax.data:Set(
-			GetVendorDataKey(),
-			istable(data) and data or {},
-			DATA_OPTIONS
-		)
-	end
+        for _, entity in ipairs(ents.FindByClass("ax_vendor")) do
+            local bodygroups = {}
 
-	function MODULE:SaveData()
-		local data = {}
+            for _, value in ipairs(entity:GetBodyGroups() or {}) do
+                bodygroups[value.id] = entity:GetBodygroup(value.id)
+            end
 
-		for _, entity in ipairs(ents.FindByClass("ax_vendor")) do
-			local bodygroups = {}
+            data[#data + 1] = {
+                name = entity:GetDisplayName(),
+                description = entity:GetDescription(),
+                pos = entity:GetPos(),
+                angles = entity:GetAngles(),
+                model = entity:GetModel(),
+                skin = entity:GetSkin(),
+                bodygroups = bodygroups,
+                bubble = entity:GetNoBubble(),
+                items = entity.items,
+                factions = entity.factions,
+                money = entity.money,
+                scale = entity.scale
+            }
+        end
 
-			for _, v in ipairs(entity:GetBodyGroups() or {}) do
-				bodygroups[v.id] = entity:GetBodygroup(v.id)
-			end
+        self:SetData(data)
+    end
 
-			data[#data + 1] = {
-				name = entity:GetDisplayName(),
-				description = entity:GetDescription(),
-				pos = entity:GetPos(),
-				angles = entity:GetAngles(),
-				model = entity:GetModel(),
-				skin = entity:GetSkin(),
-				bodygroups = bodygroups,
-				bubble = entity:GetNoBubble(),
-				items = entity.items,
-				factions = entity.factions,
-				classes = entity.classes,
-				money = entity.money,
-				scale = entity.scale
-			}
-		end
+    function MODULE:LoadData()
+        for _, value in ipairs(self:GetData() or {}) do
+            local entity = ents.Create("ax_vendor")
 
-		self:SetData(data)
-	end
+            if (!IsValid(entity)) then
+                continue
+            end
 
-	function MODULE:LoadData()
-		for _, v in ipairs(self:GetData() or {}) do
-			local entity = ents.Create("ax_vendor")
+            entity:SetPos(value.pos)
+            entity:SetAngles(value.angles)
+            entity:Spawn()
 
-			if (!IsValid(entity)) then
-				continue
-			end
+            if (value.model) then
+                entity:SetModel(value.model)
+            end
 
-			entity:SetPos(v.pos)
-			entity:SetAngles(v.angles)
-			entity:Spawn()
+            entity:SetSkin(value.skin or 0)
+            entity:InitPhysObj()
+            entity:SetNoBubble(value.bubble)
+            entity:SetDisplayName(value.name or "")
+            entity:SetDescription(value.description or "")
 
-			if (v.model) then
-				entity:SetModel(v.model)
-			end
+            for id, bodygroup in pairs(value.bodygroups or {}) do
+                entity:SetBodygroup(tonumber(id) or id, bodygroup)
+            end
 
-			entity:SetSkin(v.skin or 0)
-			entity:InitPhysObj()
+            local items = {}
+            for uniqueID, itemData in pairs(value.items or {}) do
+                items[tostring(uniqueID)] = itemData
+            end
 
-			entity:SetNoBubble(v.bubble)
-			entity:SetDisplayName(v.name or "")
-			entity:SetDescription(v.description or "")
+            entity.items = items
+            entity.factions = value.factions or {}
+            entity.money = value.money
+            entity.scale = value.scale or 0.5
+        end
+    end
 
-			for id, bodygroup in pairs(v.bodygroups or {}) do
-				entity:SetBodygroup(tonumber(id) or id, bodygroup)
-			end
+    function MODULE:OnLoaded()
+        self:LoadData()
+    end
 
-			local items = {}
+    function MODULE:CanVendorSellItem(client, vendor, itemID)
+        local tradeData = vendor.items[itemID]
+        local char = client:GetCharacter()
 
-			for uniqueID, itemData in pairs(v.items or {}) do
-				items[tostring(uniqueID)] = itemData
-			end
+        if (!tradeData or !char or !char:HasMoney(tradeData[1] or 0)) then
+            return false
+        end
 
-			entity.items = items
-			entity.factions = v.factions or {}
-			entity.classes = v.classes or {}
-			entity.money = v.money
-			entity.scale = v.scale or 0.5
-		end
-	end
+        return true
+    end
 
-	function MODULE:OnLoaded()
-		self:LoadData()
-	end
+    if (ax.log and isfunction(ax.log.AddType)) then
+        ax.log.AddType("vendorUse", function(client, ...)
+            local arg = {...}
+            return string.format("%s used the '%s' vendor.", client:Name(), arg[1])
+        end)
 
-	function MODULE:CanVendorSellItem(client, vendor, itemID)
-		local tradeData = vendor.items[itemID]
-		local char = client:GetCharacter()
+        ax.log.AddType("vendorBuy", function(client, ...)
+            local arg = {...}
+            return string.format("%s purchased a '%s' from the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+        end)
 
-		if (!tradeData or !char) then
-			return false
-		end
-
-		if (!char:HasMoney(tradeData[1] or 0)) then
-			return false
-		end
-
-		return true
-	end
-
-	if (ax.log and isfunction(ax.log.AddType)) then
-		ax.log.AddType("vendorUse", function(client, ...)
-			local arg = {...}
-
-			return string.format(
-				"%s used the '%s' vendor.",
-				client:Name(),
-				arg[1]
-			)
-		end)
-
-		ax.log.AddType("vendorBuy", function(client, ...)
-			local arg = {...}
-
-			return string.format(
-				"%s purchased a '%s' from the '%s' vendor for %s.",
-				client:Name(),
-				arg[1],
-				arg[2],
-				arg[3]
-			)
-		end)
-
-		ax.log.AddType("vendorSell", function(client, ...)
-			local arg = {...}
-
-			return string.format(
-				"%s sold a '%s' to the '%s' vendor for %s.",
-				client:Name(),
-				arg[1],
-				arg[2],
-				arg[3]
-			)
-		end)
-	end
+        ax.log.AddType("vendorSell", function(client, ...)
+            local arg = {...}
+            return string.format("%s sold a '%s' to the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+        end)
+    end
 end
 
 properties.Add("vendor_edit", {
-	MenuLabel = "Edit Vendor",
-	Order = 999,
-	MenuIcon = "icon16/user_edit.png",
+    MenuLabel = "Edit Vendor",
+    Order = 999,
+    MenuIcon = "icon16/user_edit.png",
 
-	Filter = function(self, entity, client)
-		if (!IsValid(entity)) then
-			return false
-		end
+    Filter = function(self, entity, client)
+        if (!IsValid(entity)) then
+            return false
+        end
 
-		if (entity:GetClass() != "ax_vendor") then
-			return false
-		end
+        return CAMI.PlayerHasAccess(client, "Parallax - Manage Vendors", nil)
+    end,
 
-		if (!gamemode.Call("CanProperty", client, "vendor_edit", entity)) then
-			return false
-		end
+    Action = function(self, entity)
+        self:MsgStart()
+            net.WriteEntity(entity)
+        self:MsgEnd()
+    end,
 
-		return CAMI.PlayerHasAccess(
-			client,
-			"Parallax - Manage Vendors",
-			nil
-		)
-	end,
+    Receive = function(self, length, client)
+        local entity = net.ReadEntity()
 
-	Action = function(self, entity)
-		self:MsgStart()
-			net.WriteEntity(entity)
-		self:MsgEnd()
-	end,
+        if (!IsValid(entity) or !self:Filter(entity, client)) then
+            return
+        end
 
-	Receive = function(self, length, client)
-		local entity = net.ReadEntity()
+        entity.receivers = entity.receivers or {}
+        entity.receivers[#entity.receivers + 1] = client
 
-		if (!IsValid(entity)) then
-			return
-		end
+        local itemsTable = {}
+        for uniqueID, itemData in pairs(entity.items or {}) do
+            if (!table.IsEmpty(itemData)) then
+                itemsTable[tostring(uniqueID)] = itemData
+            end
+        end
 
-		if (!self:Filter(entity, client)) then
-			return
-		end
+        client.axVendor = entity
 
-		entity.receivers = entity.receivers or {}
-		entity.receivers[#entity.receivers + 1] = client
+        net.Start("axVendorEditor")
+            net.WriteEntity(entity)
+            local hasMoney = entity.money != nil
+            net.WriteBool(hasMoney)
 
-		-- Build the item table.
-		local itemsTable = {}
+            if (hasMoney) then
+                net.WriteUInt(math.Clamp(tonumber(entity.money) or 0, 0, 65535), 16)
+            end
 
-		for k, v in pairs(entity.items or {}) do
-			if (!table.IsEmpty(v)) then
-				itemsTable[tostring(k)] = v
-			end
-		end
-
-		-- Build the faction table.
-		local factionsTable = {}
-
-		for factionID, faction in pairs(ax.faction:GetAll() or {}) do
-			if (istable(faction)) then
-				local id = faction.id or factionID
-
-				if (id) then
-					factionsTable[#factionsTable + 1] = {
-						id = id,
-						name = faction.name or faction.Name or id
-					}
-				end
-			end
-		end
-
-		local classesTable = {}
-		local seenClasses = {}
-
-		local function AddClass(classID, class, factionID)
-			if (!istable(class)) then
-				return
-			end
-
-			local id = class.id or classID
-			local classFaction = class.faction or factionID
-
-			if (istable(classFaction)) then
-				classFaction = classFaction.id
-			elseif (isnumber(classFaction)) then
-				local faction = ax.faction:Get(classFaction)
-				classFaction = faction and faction.id or classFaction
-			end
-
-			if (!id or not classFaction or seenClasses[id]) then
-				return
-			end
-
-			seenClasses[id] = true
-
-			classesTable[#classesTable + 1] = {
-				id = id,
-				name = class.name or class.Name or id,
-				faction = classFaction
-			}
-		end
-
-		for classID, class in pairs(ax.class.stored or {}) do
-			AddClass(classID, class)
-		end
-
-		for classID, class in pairs(ax.class.instances or {}) do
-			AddClass(classID, class)
-		end
-
-		for factionID, faction in pairs(ax.faction:GetAll() or {}) do
-			if (!istable(faction)) then
-				continue
-			end
-
-			local factionClasses = faction.classes or faction.Classes
-			local resolvedFactionID = faction.id or factionID
-
-			if (istable(factionClasses)) then
-				for classID, class in pairs(factionClasses) do
-					if (istable(class)) then
-						AddClass(classID, class, resolvedFactionID)
-					end
-				end
-			end
-		end
-
-		-- Store the currently edited vendor on the client.
-		client.axVendor = entity
-
-		net.Start("axVendorEditor")
-			net.WriteEntity(entity)
-
-			local hasMoney = entity.money != nil
-
-			net.WriteBool(hasMoney)
-
-			if (hasMoney) then
-				net.WriteUInt(
-					math.Clamp(
-						tonumber(entity.money) or 0,
-						0,
-						65535
-					),
-					16
-				)
-			end
-
-			net.WriteTable(itemsTable)
-			net.WriteFloat(entity.scale or 0.5)
-			net.WriteTable(entity.messages or {})
-			net.WriteTable(entity.factions or {})
-			net.WriteTable(entity.classes or {})
-			net.WriteTable(classesTable)
-		net.Send(client)
-	end
+            net.WriteTable(itemsTable)
+            net.WriteFloat(entity.scale or 0.5)
+            net.WriteTable(entity.messages or {})
+            net.WriteTable(entity.factions or {})
+        net.Send(client)
+    end
 })
