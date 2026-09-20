@@ -329,14 +329,14 @@ ax.option:Add("button.delay.click", ax.type.number, 0.1, {
 
 -- Visual preference options
 
-ax.option:Add("hud.bar.health.show", ax.type.bool, true, {
+ax.option:Add("hud.bar.health.show", ax.type.bool, false, {
     category = "interface",
     subCategory = "hud",
     description = "hud.bar.health.show.help",
     bNoNetworking = true
 })
 
-ax.option:Add("hud.bar.armor.show", ax.type.bool, true, {
+ax.option:Add("hud.bar.armor.show", ax.type.bool, false, {
     category = "interface",
     subCategory = "hud",
     description = "hud.bar.armor.show.help",
