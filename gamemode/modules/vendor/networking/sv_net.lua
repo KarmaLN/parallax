@@ -126,6 +126,19 @@ net.Receive("axVendorEdit", function(length, client)
 
 			local uniqueID = data
 			data = {uniqueID, entity.factions[uniqueID]}
+		elseif (key == "rank") then
+			local uniqueID = data[1]
+			local faction = ax.faction:Get(uniqueID)
+			local minimumRank = math.max(math.Round(tonumber(data[2]) or 0), 0)
+
+			if (faction and minimumRank > 0) then
+				entity.factions[uniqueID] = minimumRank
+			elseif (faction and entity.factions[uniqueID]) then
+				entity.factions[uniqueID] = true
+			end
+
+			data = {uniqueID, entity.factions[uniqueID]}
+			UpdateEditReceivers(entity.receivers, key, data)
 		elseif (key == "class") then
 			local class = ax.class:Get(data)
 

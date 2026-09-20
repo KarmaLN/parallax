@@ -74,8 +74,16 @@ function ENT:CanAccess(client)
 	end
 
 	if (self.factions and !table.IsEmpty(self.factions)) then
-		if (!self.factions[uniqueID]) then
+		local factionRestriction = self.factions[uniqueID]
+		if (!factionRestriction) then
 			return false
+		end
+
+		if (isnumber(factionRestriction)) then
+			local rank = ax.rank:Get(character:GetRank())
+			if (!rank or rank.faction != faction.index or (rank.sortOrder or 0) < factionRestriction) then
+				return false
+			end
 		end
 	end
 

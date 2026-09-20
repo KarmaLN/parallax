@@ -36,16 +36,19 @@ VENDOR_TEXT = {}
 		end
 
 		local hasMoney = net.ReadBool()
+
 		entity.money = hasMoney and net.ReadUInt(16) or nil
 		entity.items = net.ReadTable()
 		entity.scale = net.ReadFloat()
 		entity.messages = net.ReadTable()
 		entity.factions = net.ReadTable()
 		entity.classes = net.ReadTable()
+		entity.availableClasses = net.ReadTable()
 
 		ax.gui.vendor = vgui.Create("axVendor")
 		ax.gui.vendor:SetReadOnly(true)
 		ax.gui.vendor:Setup(entity)
+
 		ax.gui.vendorEditor = vgui.Create("axVendorEditor")
 	end)
 
@@ -159,6 +162,17 @@ VENDOR_TEXT = {}
 
 			if (IsValid(editPanel) and IsValid(editPanel.factions[uniqueID])) then
 				editPanel.factions[uniqueID]:SetChecked(state == true)
+			end
+		elseif (key == "rank") then
+			local uniqueID = data[1]
+			local minimumRank = isnumber(data[2]) and data[2] or ""
+			local editPanel = ax.gui.editorFaction
+
+			entity.factions[uniqueID] = data[2]
+
+			if (IsValid(editPanel) and IsValid(editPanel.ranks[uniqueID])) then
+				editPanel.ranks[uniqueID].noSend = true
+				editPanel.ranks[uniqueID]:SetText(minimumRank, true, true)
 			end
 		elseif (key == "class") then
 			local uniqueID = data[1]

@@ -1,7 +1,4 @@
 
--- luacheck: globals VENDOR_BUY VENDOR_SELL VENDOR_BOTH VENDOR_WELCOME VENDOR_LEAVE VENDOR_NOTRADE VENDOR_PRICE
--- luacheck: globals VENDOR_STOCK VENDOR_MODE VENDOR_MAXSTOCK VENDOR_SELLANDBUY VENDOR_SELLONLY VENDOR_BUYONLY VENDOR_TEXT
-
 local MODULE = MODULE
 
 MODULE.name = "Vendors"
@@ -32,8 +29,10 @@ VENDOR_MAXSTOCK = 4
 
 -- Sell and buy the item.
 VENDOR_SELLANDBUY = 1
+
 -- Only sell the item to the player.
 VENDOR_SELLONLY = 2
+
 -- Only buy the item from the player.
 VENDOR_BUYONLY = 3
 
@@ -56,6 +55,7 @@ if (SERVER) then
 		end
 
 		translations = istable(translations) and translations or ax.localization.langs.en or {}
+
 		local message = translations[phrase] or phrase
 		local arguments = {...}
 
@@ -68,7 +68,8 @@ if (SERVER) then
 
 	function MODULE:GetData()
 		local data = ax.data:Get(GetVendorDataKey(), {}, DATA_OPTIONS)
-		if ( !istable(data) ) then
+
+		if (!istable(data)) then
 			return {}
 		end
 
@@ -76,7 +77,11 @@ if (SERVER) then
 	end
 
 	function MODULE:SetData(data)
-		return ax.data:Set(GetVendorDataKey(), istable(data) and data or {}, DATA_OPTIONS)
+		return ax.data:Set(
+			GetVendorDataKey(),
+			istable(data) and data or {},
+			DATA_OPTIONS
+		)
 	end
 
 	function MODULE:SaveData()
@@ -112,26 +117,34 @@ if (SERVER) then
 	function MODULE:LoadData()
 		for _, v in ipairs(self:GetData() or {}) do
 			local entity = ents.Create("ax_vendor")
+
+			if (!IsValid(entity)) then
+				continue
+			end
+
 			entity:SetPos(v.pos)
 			entity:SetAngles(v.angles)
 			entity:Spawn()
 
-			entity:SetModel(v.model)
+			if (v.model) then
+				entity:SetModel(v.model)
+			end
+
 			entity:SetSkin(v.skin or 0)
 			entity:InitPhysObj()
 
 			entity:SetNoBubble(v.bubble)
-			entity:SetDisplayName(v.name)
-			entity:SetDescription(v.description)
+			entity:SetDisplayName(v.name or "")
+			entity:SetDescription(v.description or "")
 
 			for id, bodygroup in pairs(v.bodygroups or {}) do
-				entity:SetBodygroup(id, bodygroup)
+				entity:SetBodygroup(tonumber(id) or id, bodygroup)
 			end
 
 			local items = {}
 
-			for uniqueID, data in pairs(v.items or {}) do
-				items[tostring(uniqueID)] = data
+			for uniqueID, itemData in pairs(v.items or {}) do
+				items[tostring(uniqueID)] = itemData
 			end
 
 			entity.items = items
@@ -161,23 +174,41 @@ if (SERVER) then
 		return true
 	end
 
-	if ( ax.log and isfunction(ax.log.AddType) ) then
+	if (ax.log and isfunction(ax.log.AddType)) then
 		ax.log.AddType("vendorUse", function(client, ...)
 			local arg = {...}
-			return string.format("%s used the '%s' vendor.", client:Name(), arg[1])
+
+			return string.format(
+				"%s used the '%s' vendor.",
+				client:Name(),
+				arg[1]
+			)
 		end)
 
 		ax.log.AddType("vendorBuy", function(client, ...)
 			local arg = {...}
-			return string.format("%s purchased a '%s' from the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+
+			return string.format(
+				"%s purchased a '%s' from the '%s' vendor for %s.",
+				client:Name(),
+				arg[1],
+				arg[2],
+				arg[3]
+			)
 		end)
 
 		ax.log.AddType("vendorSell", function(client, ...)
 			local arg = {...}
-			return string.format("%s sold a '%s' to the '%s' vendor for %s.", client:Name(), arg[1], arg[2], arg[3])
+
+			return string.format(
+				"%s sold a '%s' to the '%s' vendor for %s.",
+				client:Name(),
+				arg[1],
+				arg[2],
+				arg[3]
+			)
 		end)
 	end
-else
 end
 
 properties.Add("vendor_edit", {
@@ -186,11 +217,23 @@ properties.Add("vendor_edit", {
 	MenuIcon = "icon16/user_edit.png",
 
 	Filter = function(self, entity, client)
-		if (!IsValid(entity)) then return false end
-		if (entity:GetClass() != "ax_vendor") then return false end
-		if (!gamemode.Call( "CanProperty", client, "vendor_edit", entity)) then return false end
+		if (!IsValid(entity)) then
+			return false
+		end
 
-		return CAMI.PlayerHasAccess(client, "Parallax - Manage Vendors", nil)
+		if (entity:GetClass() != "ax_vendor") then
+			return false
+		end
+
+		if (!gamemode.Call("CanProperty", client, "vendor_edit", entity)) then
+			return false
+		end
+
+		return CAMI.PlayerHasAccess(
+			client,
+			"Parallax - Manage Vendors",
+			nil
+		)
 	end,
 
 	Action = function(self, entity)
@@ -202,33 +245,125 @@ properties.Add("vendor_edit", {
 	Receive = function(self, length, client)
 		local entity = net.ReadEntity()
 
-		if (!IsValid(entity)) then return end
-		if (!self:Filter(entity, client)) then return end
+		if (!IsValid(entity)) then
+			return
+		end
 
+		if (!self:Filter(entity, client)) then
+			return
+		end
+
+		entity.receivers = entity.receivers or {}
 		entity.receivers[#entity.receivers + 1] = client
 
+		-- Build the item table.
 		local itemsTable = {}
 
-		for k, v in pairs(entity.items) do
+		for k, v in pairs(entity.items or {}) do
 			if (!table.IsEmpty(v)) then
-				itemsTable[k] = v
+				itemsTable[tostring(k)] = v
 			end
 		end
 
+		-- Build the faction table.
+		local factionsTable = {}
+
+		for factionID, faction in pairs(ax.faction:GetAll() or {}) do
+			if (istable(faction)) then
+				local id = faction.id or factionID
+
+				if (id) then
+					factionsTable[#factionsTable + 1] = {
+						id = id,
+						name = faction.name or faction.Name or id
+					}
+				end
+			end
+		end
+
+		local classesTable = {}
+		local seenClasses = {}
+
+		local function AddClass(classID, class, factionID)
+			if (!istable(class)) then
+				return
+			end
+
+			local id = class.id or classID
+			local classFaction = class.faction or factionID
+
+			if (istable(classFaction)) then
+				classFaction = classFaction.id
+			elseif (isnumber(classFaction)) then
+				local faction = ax.faction:Get(classFaction)
+				classFaction = faction and faction.id or classFaction
+			end
+
+			if (!id or not classFaction or seenClasses[id]) then
+				return
+			end
+
+			seenClasses[id] = true
+
+			classesTable[#classesTable + 1] = {
+				id = id,
+				name = class.name or class.Name or id,
+				faction = classFaction
+			}
+		end
+
+		for classID, class in pairs(ax.class.stored or {}) do
+			AddClass(classID, class)
+		end
+
+		for classID, class in pairs(ax.class.instances or {}) do
+			AddClass(classID, class)
+		end
+
+		for factionID, faction in pairs(ax.faction:GetAll() or {}) do
+			if (!istable(faction)) then
+				continue
+			end
+
+			local factionClasses = faction.classes or faction.Classes
+			local resolvedFactionID = faction.id or factionID
+
+			if (istable(factionClasses)) then
+				for classID, class in pairs(factionClasses) do
+					if (istable(class)) then
+						AddClass(classID, class, resolvedFactionID)
+					end
+				end
+			end
+		end
+
+		-- Store the currently edited vendor on the client.
 		client.axVendor = entity
 
 		net.Start("axVendorEditor")
 			net.WriteEntity(entity)
-		local hasMoney = entity.money != nil
+
+			local hasMoney = entity.money != nil
+
 			net.WriteBool(hasMoney)
+
 			if (hasMoney) then
-				net.WriteUInt(math.min(entity.money, 65535), 16)
+				net.WriteUInt(
+					math.Clamp(
+						tonumber(entity.money) or 0,
+						0,
+						65535
+					),
+					16
+				)
 			end
+
 			net.WriteTable(itemsTable)
 			net.WriteFloat(entity.scale or 0.5)
-			net.WriteTable(entity.messages)
-			net.WriteTable(entity.factions)
-			net.WriteTable(entity.classes)
+			net.WriteTable(entity.messages or {})
+			net.WriteTable(entity.factions or {})
+			net.WriteTable(entity.classes or {})
+			net.WriteTable(classesTable)
 		net.Send(client)
 	end
 })
