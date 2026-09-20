@@ -998,9 +998,8 @@ function PANEL:PopulateItems()
                     end
 
                     if ( representativeItem.ShouldHighlightInInventory and representativeItem:ShouldHighlightInInventory() ) then
-                        ax.render.DrawShadows(20, 0, 0, 3, height, surface.SetDrawColor(80, 215, 100), 10, 20, bit.bor(ax.render.MANUAL_COLOR, ax.render.SHAPE_IOS, ax.render.NO_TL, ax.render.NO_BL, ax.render.BLUR))
-
-                        ax.render.Draw(20, 0, 0, 3, height, surface.SetDrawColor(80, 215, 100), bit.bor(ax.render.MANUAL_COLOR, ax.render.SHAPE_IOS, ax.render.NO_TL, ax.render.NO_BL))
+                        ax.render.Draw(20, 0, 0, 5, height, surface.SetDrawColor(80, 215, 100), bit.bor(ax.render.MANUAL_COLOR, ax.render.SHAPE_IOS, ax.render.NO_TL, ax.render.NO_BL))
+                    end
                     end
                 end
 
