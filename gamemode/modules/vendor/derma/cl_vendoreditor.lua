@@ -11,15 +11,20 @@ end
 
 function PANEL:Init()
 	local entity = ax.gui.vendor.entity
+	local marginX = ax.util:ScreenScale(8)
+	local marginY = ax.util:ScreenScaleH(4)
 
-	self:SetSize(320, 480)
+	self:SetSize(
+		math.Clamp(ScrW() * 0.3, ax.util:ScreenScale(240), ax.util:ScreenScale(360)),
+		math.Clamp(ScrH() * 0.75, ax.util:ScreenScaleH(360), ScrH() - ax.util:ScreenScaleH(24))
+	)
 	self:MoveLeftOf(ax.gui.vendor, 8)
 	self:MakePopup()
 	self:CenterVertical()
 	self:SetTitle(L"vendorEditor")
 	self.lblTitle:SetTextColor(color_white)
 
-	self.name = self:Add("DTextEntry")
+	self.name = self:Add("ax.text.entry")
 	self.name:Dock(TOP)
 	self.name:SetText(entity:GetDisplayName())
 	self.name:SetPlaceholderText(L"name")
@@ -29,9 +34,9 @@ function PANEL:Init()
 		end
 	end
 
-	self.description = self:Add("DTextEntry")
+	self.description = self:Add("ax.text.entry")
 	self.description:Dock(TOP)
-	self.description:DockMargin(0, 4, 0, 0)
+	self.description:DockMargin(0, marginY, 0, 0)
 	self.description:SetText(entity:GetDescription())
 	self.description:SetPlaceholderText(L"description")
 	self.description.OnEnter = function(this)
@@ -40,9 +45,9 @@ function PANEL:Init()
 		end
 	end
 
-	self.model = self:Add("DTextEntry")
+	self.model = self:Add("ax.text.entry")
 	self.model:Dock(TOP)
-	self.model:DockMargin(0, 4, 0, 0)
+	self.model:DockMargin(0, marginY, 0, 0)
 	self.model:SetText(entity:GetModel())
 	self.model:SetPlaceholderText(L"model")
 	self.model.OnEnter = function(this)
@@ -53,9 +58,9 @@ function PANEL:Init()
 
 	local useMoney = tonumber(entity.money) != nil
 
-	self.money = self:Add("DTextEntry")
+	self.money = self:Add("ax.text.entry")
 	self.money:Dock(TOP)
-	self.money:DockMargin(0, 4, 0, 0)
+	self.money:DockMargin(0, marginY, 0, 0)
 	self.money:SetText(!useMoney and "∞" or entity.money)
 	self.money:SetPlaceholderText(L"money")
 	self.money:SetDisabled(!useMoney)
@@ -74,7 +79,7 @@ function PANEL:Init()
 	self.bubble = self:Add("DCheckBoxLabel")
 	self.bubble:SetText(L"vendorNoBubble")
 	self.bubble:Dock(TOP)
-	self.bubble:DockMargin(0, 4, 0, 0)
+	self.bubble:DockMargin(0, marginY, 0, 0)
 	self.bubble:SetValue(entity:GetNoBubble() and 1 or 0)
 	self.bubble.OnChange = function(this, value)
 		if (this.noSend) then
@@ -87,7 +92,7 @@ function PANEL:Init()
 	self.useMoney = self:Add("DCheckBoxLabel")
 	self.useMoney:SetText(L"vendorUseMoney")
 	self.useMoney:Dock(TOP)
-	self.useMoney:DockMargin(0, 4, 0, 0)
+	self.useMoney:DockMargin(0, marginY, 0, 0)
 	self.useMoney:SetChecked(useMoney)
 	self.useMoney.OnChange = function(this, value)
 		self:updateVendor("useMoney")
@@ -95,7 +100,7 @@ function PANEL:Init()
 
 	self.sellScale = self:Add("DNumSlider")
 	self.sellScale:Dock(TOP)
-	self.sellScale:DockMargin(0, 4, 0, 0)
+	self.sellScale:DockMargin(0, marginY, 0, 0)
 	self.sellScale:SetText(L"vendorSellScale")
 	self.sellScale.Label:SetTextColor(color_white)
 	self.sellScale.TextArea:SetTextColor(color_white)
@@ -118,11 +123,11 @@ function PANEL:Init()
 		end
 	end
 
-	self.faction = self:Add("DButton")
+	self.faction = self:Add("ax.button")
 	self.faction:SetText(L"vendorFaction")
 	self.faction:Dock(TOP)
 	self.faction:SetTextColor(color_white)
-	self.faction:DockMargin(0, 4, 0, 0)
+	self.faction:DockMargin(0, marginY, 0, 0)
 	self.faction.DoClick = function(this)
 		if (IsValid(ax.gui.editorFaction)) then
 			ax.gui.editorFaction:Remove()
@@ -134,9 +139,9 @@ function PANEL:Init()
 		ax.gui.editorFaction:Setup()
 	end
 
-	self.searchBar = self:Add("DTextEntry")
+	self.searchBar = self:Add("ax.text.entry")
 	self.searchBar:Dock(TOP)
-	self.searchBar:DockMargin(0, 4, 0, 0)
+	self.searchBar:DockMargin(0, marginY, 0, 0)
 	self.searchBar:SetUpdateOnType(true)
 	self.searchBar:SetPlaceholderText("Search...")
 	self.searchBar.OnValueChange = function(this, value)
@@ -147,7 +152,7 @@ function PANEL:Init()
 
 	self.items = self:Add("DListView")
 	self.items:Dock(FILL)
-	self.items:DockMargin(0, 4, 0, 0)
+	self.items:DockMargin(0, marginY, 0, 0)
 	self.items:AddColumn(L"name").Header:SetTextColor(color_black)
 	self.items:AddColumn(L"category").Header:SetTextColor(color_black)
 	self.items:AddColumn(L"mode").Header:SetTextColor(color_black)
@@ -291,4 +296,4 @@ function PANEL:updateVendor(key, value)
 	net.SendToServer()
 end
 
-vgui.Register("axVendorEditor", PANEL, "DFrame")
+vgui.Register("axVendorEditor", PANEL, "ax.frame")

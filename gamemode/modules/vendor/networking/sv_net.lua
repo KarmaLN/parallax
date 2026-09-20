@@ -86,11 +86,11 @@ net.Receive("axVendorEdit", function(length, client)
 			data = uniqueID
 		elseif (key == "stockMax") then
 			local uniqueID = data[1]
-			data[2] = math.max(math.Round(tonumber(data[2]) or 1), 1)
+			data[2] = math.Clamp(math.Round(tonumber(data[2]) or 1), 1, 65535)
 
 			entity.items[uniqueID] = entity.items[uniqueID] or {}
 			entity.items[uniqueID][VENDOR_MAXSTOCK] = data[2]
-			entity.items[uniqueID][VENDOR_STOCK] = math.Clamp(entity.items[uniqueID][VENDOR_STOCK] or data[2], 1, data[2])
+			entity.items[uniqueID][VENDOR_STOCK] = math.Clamp(entity.items[uniqueID][VENDOR_STOCK] or data[2], 0, data[2])
 
 			data[3] = entity.items[uniqueID][VENDOR_STOCK]
 
@@ -103,7 +103,7 @@ net.Receive("axVendorEdit", function(length, client)
 			entity.items[uniqueID] = entity.items[uniqueID] or {}
 
 			if (!entity.items[uniqueID][VENDOR_MAXSTOCK]) then
-				data[2] = math.max(math.Round(tonumber(data[2]) or 0), 0)
+				data[2] = math.max(math.Round(tonumber(data[2]) or 1), 1)
 				entity.items[uniqueID][VENDOR_MAXSTOCK] = data[2]
 			end
 
@@ -114,7 +114,7 @@ net.Receive("axVendorEdit", function(length, client)
 
 			data = uniqueID
 		elseif (key == "faction") then
-			local faction = ax.faction.teams[data]
+			local faction = ax.faction:Get(data)
 
 			if (faction) then
 				entity.factions[data] = !entity.factions[data]
@@ -127,15 +127,7 @@ net.Receive("axVendorEdit", function(length, client)
 			local uniqueID = data
 			data = {uniqueID, entity.factions[uniqueID]}
 		elseif (key == "class") then
-			local class
-
-			for _, v in ipairs(ax.class.list) do
-				if (v.uniqueID == data) then
-					class = v
-
-					break
-				end
-			end
+			local class = ax.class:Get(data)
 
 			if (class) then
 				entity.classes[data] = !entity.classes[data]
@@ -158,7 +150,7 @@ net.Receive("axVendorEdit", function(length, client)
 				entity:SetMoney(0)
 			end
 		elseif (key == "money") then
-			data = math.Round(math.abs(tonumber(data) or 0))
+			data = math.Clamp(math.Round(math.abs(tonumber(data) or 0)), 0, 65535)
 
 			entity:SetMoney(data)
 			feedback = false
@@ -217,20 +209,25 @@ net.Receive("axVendorTrade", function(length, client)
 				local name
 
 				if (!entity:HasMoney(price)) then
-					return client:Notify("vendorNoMoney")
+					return MODULE:Notify(client, "vendorNoMoney", "error")
+				end
+
+				if (!entity:CanBuyFromPlayer(client, uniqueID)) then
+					return MODULE:Notify(client, "vendorNoTrade", "error")
 				end
 
 				local stock, max = entity:GetStock(uniqueID)
 
-				if (stock and stock >= max) then
-					return client:Notify("vendorMaxStock")
+				if (stock and max and stock >= max) then
+					return MODULE:Notify(client, "vendorMaxStock", "error")
 				end
 
 				local invOkay = true
+				local inventory = client:GetCharacter():GetInventory()
 
-				for _, item in pairs(client:GetCharacter():GetInventory():GetItems()) do
-					if (item.class == uniqueID and item:GetID() != 0 and ax.item.instances[item:GetID()] and item:GetData("equip", false) == false) then
-						invOkay = item:Remove()
+				for _, item in pairs(inventory:GetItems()) do
+					if (item.class == uniqueID and item:GetData("equip", false) != true) then
+						invOkay = inventory:RemoveItem(item:GetID())
 						found = true
 						name = item.name or uniqueID
 
@@ -239,16 +236,16 @@ net.Receive("axVendorTrade", function(length, client)
 				end
 
 				if (!found) then
-					return
+					return MODULE:Notify(client, "vendorNoItem", "error")
 				end
 
 				if (!invOkay) then
 					client:GetCharacter():GetInventory():Sync(client, true)
-					return client:Notify("tellAdmin", "trd!iid")
+					return MODULE:Notify(client, "tellAdmin", "error", "trd!iid")
 				end
 
-				client:GetCharacter():GiveMoney(price, price == 0)
-				client:Notify("businessSell", name, ax.currencies:Format(price, "default"))
+				client:GetCharacter():AddMoney(price)
+				MODULE:Notify(client, "businessSell", "success", name, ax.currencies:Format(price, "default"))
 				entity:TakeMoney(price)
 				entity:AddStock(uniqueID)
 
@@ -259,11 +256,11 @@ net.Receive("axVendorTrade", function(length, client)
 				local stock = entity:GetStock(uniqueID)
 
 				if (stock and stock < 1) then
-					return client:Notify("vendorNoStock")
+					return MODULE:Notify(client, "vendorNoStock", "error")
 				end
 
 				if (!client:GetCharacter():HasMoney(price)) then
-					return client:Notify("canNotAfford")
+					return MODULE:Notify(client, "vendorCanNotAfford", "error")
 				end
 
 				if ( !entity:CanSellToPlayer(client, uniqueID) ) then
@@ -273,8 +270,8 @@ net.Receive("axVendorTrade", function(length, client)
 				local itemName = ax.item.stored[uniqueID] and ax.item.stored[uniqueID].name or uniqueID
 				local name = itemName
 
-				client:GetCharacter():TakeMoney(price, price == 0)
-				client:Notify("businessPurchase", name, ax.currencies:Format(price, "default"))
+				client:GetCharacter():TakeMoney(price)
+				MODULE:Notify(client, "businessPurchase", "success", name, ax.currencies:Format(price, "default"))
 
 				entity:GiveMoney(price)
 
@@ -296,6 +293,6 @@ net.Receive("axVendorTrade", function(length, client)
 			MODULE:SaveData()
 			hook.Run("CharacterVendorTraded", client, entity, uniqueID, isSellingToVendor)
 		else
-			client:Notify("vendorNoTrade")
+			MODULE:Notify(client, "vendorNoTrade", "error")
 		end
 	end)

@@ -1000,7 +1000,6 @@ function PANEL:PopulateItems()
                     if ( representativeItem.ShouldHighlightInInventory and representativeItem:ShouldHighlightInInventory() ) then
                         ax.render.Draw(20, 0, 0, 5, height, surface.SetDrawColor(80, 215, 100), bit.bor(ax.render.MANUAL_COLOR, ax.render.SHAPE_IOS, ax.render.NO_TL, ax.render.NO_BL))
                     end
-                    end
                 end
 
                 if ( stack.isCurrencyStack ) then

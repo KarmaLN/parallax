@@ -10,59 +10,70 @@ local function L(key, ...)
 end
 
 function PANEL:Init()
-	self:SetSize(256, 280)
+	local paddingX = ax.util:ScreenScale(8)
+	local paddingY = ax.util:ScreenScaleH(6)
+
+	self:SetSize(
+		math.Clamp(ScrW() * 0.22, ax.util:ScreenScale(200), ax.util:ScreenScale(280)),
+		math.Clamp(ScrH() * 0.5, ax.util:ScreenScaleH(240), ScrH() - paddingY * 2)
+	)
 	self:Center()
 	self:MakePopup()
 	self:SetTitle(L"vendorFaction")
-	self.scroll = self:Add("DScrollPanel")
+	self.scroll = self:Add("ax.scroller.vertical")
 	self.scroll:Dock(FILL)
-	self.scroll:DockPadding(0, 0, 0, 4)
+	self.scroll:DockPadding(0, 0, 0, paddingY)
 
 	self.factions = {}
 	self.classes = {}
 
-	for k, v in ipairs(ax.faction:GetAll()) do
-		local panel = self.scroll:Add("DPanel")
+	for k, v in pairs(ax.faction:GetAll()) do
+		local panel = self.scroll:Add("EditablePanel")
 		panel:Dock(TOP)
-		panel:DockPadding(4, 4, 4, 4)
-		panel:DockMargin(0, 0, 0, 4)
+		panel:DockPadding(paddingX / 2, paddingY / 2, paddingX / 2, paddingY / 2)
+		panel:DockMargin(0, 0, 0, paddingY / 2)
 
 		local faction = panel:Add("DCheckBoxLabel")
 		faction:Dock(TOP)
 		faction:SetText(L(v.name))
 		faction:DockMargin(0, 0, 0, 4)
 		faction.OnChange = function(this, state)
-			self:updateVendor("faction", v.uniqueID)
+			self:updateVendor("faction", v.id)
 		end
 
-		self.factions[v.uniqueID] = faction
+		self.factions[v.id] = faction
 
 		for _, v2 in ipairs(ax.class:GetAll()) do
 			if (v2.faction == k) then
 				local class = panel:Add("DCheckBoxLabel")
 				class:Dock(TOP)
-				class:DockMargin(16, 0, 0, 4)
+				class:DockMargin(ax.util:ScreenScale(16), 0, 0, paddingY / 2)
 				class:SetText(L(v2.name))
 				class.OnChange = function(this, state)
-					self:updateVendor("class", v2.uniqueID)
+					self:updateVendor("class", v2.id)
 				end
 
-				self.classes[v2.uniqueID] = class
+				self.classes[v2.id] = class
 
-				panel:SetTall(panel:GetTall() + class:GetTall() + 4)
 			end
 		end
+
+		panel:SizeToChildren(false, true)
 	end
 end
 
 function PANEL:Setup()
 	for k, _ in pairs(self.entity.factions or {}) do
-		self.factions[k]:SetChecked(true)
+		if (IsValid(self.factions[k])) then
+			self.factions[k]:SetChecked(true)
+		end
 	end
 
 	for k, _ in pairs(self.entity.classes or {}) do
-		self.classes[k]:SetChecked(true)
+		if (IsValid(self.classes[k])) then
+			self.classes[k]:SetChecked(true)
+		end
 	end
 end
 
-vgui.Register("axVendorFactionEditor", PANEL, "DFrame")
+vgui.Register("axVendorFactionEditor", PANEL, "ax.frame")

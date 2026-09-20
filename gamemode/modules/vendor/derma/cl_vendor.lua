@@ -12,43 +12,62 @@ end
 AccessorFunc(PANEL, "bReadOnly", "ReadOnly", FORCE_BOOL)
 
 function PANEL:Init()
-	self:SetSize(ScrW() * 0.45, ScrH() * 0.65)
+	local paddingX = ax.util:ScreenScale(8)
+	local paddingY = ax.util:ScreenScaleH(6)
+
+	self:SetSize(
+		math.Clamp(ScrW() * 0.62, ax.util:ScreenScale(380), ScrW() - paddingX * 2),
+		math.Clamp(ScrH() * 0.64, ax.util:ScreenScaleH(280), ScrH() - paddingY * 2)
+	)
 	self:SetTitle("")
 	self:MakePopup()
 	self:Center()
 
-	local header = self:Add("DPanel")
-	header:SetTall(34)
+	local header = self:Add("EditablePanel")
+	header:SetTall(ax.util:ScreenScaleH(24))
 	header:Dock(TOP)
+	header.Paint = function(this, width, height)
+		local glass = ax.theme:GetGlass()
+		surface.SetDrawColor(ColorAlpha(glass.panelBorder, 110))
+		surface.DrawRect(0, height - 1, width, 1)
+	end
 
-	self.vendorName = header:Add("DLabel")
+	self.vendorName = header:Add("ax.text")
 	self.vendorName:Dock(LEFT)
 	self.vendorName:SetWide(self:GetWide() * 0.5 - 7)
-	self.vendorName:SetText("John Doe")
-	self.vendorName:SetTextInset(4, 0)
+	self.vendorName:SetText("John Doe", true, true)
+	self.vendorName:SetTextInset(paddingX / 2, 0)
 	self.vendorName:SetTextColor(color_white)
 	self.vendorName:SetFont("ax.small")
 
-	self.ourName = header:Add("DLabel")
+	self.ourName = header:Add("ax.text")
 	self.ourName:Dock(RIGHT)
 	self.ourName:SetWide(self:GetWide() * 0.5 - 7)
-	self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")")
+	self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")", true, true)
 	self.ourName:SetTextInset(0, 0)
 	self.ourName:SetTextColor(color_white)
 	self.ourName:SetFont("ax.small")
 
-	local footer = self:Add("DPanel")
-	footer:SetTall(34)
+	local footer = self:Add("EditablePanel")
+	footer:SetTall(ax.util:ScreenScaleH(34))
 	footer:Dock(BOTTOM)
-	footer:SetPaintBackground(false)
+	footer:DockPadding(paddingX / 2, paddingY / 2, paddingX / 2, paddingY / 2)
+	footer.Paint = function(this, width, height)
+		local glass = ax.theme:GetGlass()
+		surface.SetDrawColor(ColorAlpha(glass.panelBorder, 110))
+		surface.DrawRect(0, 0, width, 1)
+	end
 
-	self.vendorSell = footer:Add("DButton")
+
+	self.vendorSell = footer:Add("ax.button")
 	self.vendorSell:SetFont("ax.small")
-	self.vendorSell:SetWide(self.vendorName:GetWide())
 	self.vendorSell:Dock(LEFT)
+	self.vendorSell:SetWide(self:GetWide() * 0.5 - paddingX)
+	self.vendorSell:DockMargin(0, 0, paddingX / 2, 0)
 	self.vendorSell:SetContentAlignment(5)
+	self.vendorSell:SetUpdateSizeOnHover(false)
 	-- The text says purchase but the vendor is selling it to us.
-	self.vendorSell:SetText(L"purchase")
+	self.vendorSell:SetText(L"vendorPurchase", true, true)
 	self.vendorSell:SetTextColor(color_white)
 
 	self.vendorSell.DoClick = function(this)
@@ -60,13 +79,16 @@ function PANEL:Init()
 		end
 	end
 
-	self.vendorBuy = footer:Add("DButton")
+	self.vendorBuy = footer:Add("ax.button")
 	self.vendorBuy:SetFont("ax.small")
-	self.vendorBuy:SetWide(self.ourName:GetWide())
 	self.vendorBuy:Dock(RIGHT)
+	self.vendorBuy:SetWide(self:GetWide() * 0.5 - paddingX)
+	self.vendorBuy:DockMargin(paddingX / 2, 0, 0, 0)
 	self.vendorBuy:SetContentAlignment(5)
-	self.vendorBuy:SetText(L"sell")
+	self.vendorBuy:SetUpdateSizeOnHover(false)
+	self.vendorBuy:SetText(L"vendorSellItem", true, true)
 	self.vendorBuy:SetTextColor(color_white)
+	self.vendorBuy:SetEnabled(false)
 	self.vendorBuy.DoClick = function(this)
 		if (IsValid(self.activeBuy)) then
 			net.Start("axVendorTrade")
@@ -76,26 +98,33 @@ function PANEL:Init()
 		end
 	end
 
-	self.selling = self:Add("DScrollPanel")
+	self.selling = self:Add("ax.scroller.vertical")
 	self.selling:SetWide(self:GetWide() * 0.5 - 7)
 	self.selling:Dock(LEFT)
-	self.selling:DockMargin(0, 4, 0, 4)
-	self.selling:SetPaintBackground(true)
+	self.selling:DockMargin(0, paddingY, paddingX / 2, paddingY)
 
 	self.sellingItems = self.selling:Add("DListLayout")
 	self.sellingItems:SetSize(self.selling:GetSize())
-	self.sellingItems:DockPadding(0, 0, 0, 4)
-	self.sellingItems:SetTall(ScrH())
+	self.sellingItems:DockPadding(0, 0, 0, paddingY)
+	self.selling.Paint = function(this, width, height)
+		local glass = ax.theme:GetGlass()
+		surface.SetDrawColor(ColorAlpha(glass.panel, 90))
+		surface.DrawRect(0, 0, width, height)
+	end
 
-	self.buying = self:Add("DScrollPanel")
+	self.buying = self:Add("ax.scroller.vertical")
 	self.buying:SetWide(self:GetWide() * 0.5 - 7)
 	self.buying:Dock(RIGHT)
-	self.buying:DockMargin(0, 4, 0, 4)
-	self.buying:SetPaintBackground(true)
+	self.buying:DockMargin(paddingX / 2, paddingY, 0, paddingY)
 
 	self.buyingItems = self.buying:Add("DListLayout")
 	self.buyingItems:SetSize(self.buying:GetSize())
-	self.buyingItems:DockPadding(0, 0, 0, 4)
+	self.buyingItems:DockPadding(0, 0, 0, paddingY)
+	self.buying.Paint = function(this, width, height)
+		local glass = ax.theme:GetGlass()
+		surface.SetDrawColor(ColorAlpha(glass.panel, 90))
+		surface.DrawRect(0, 0, width, height)
+	end
 
 	self.sellingList = {}
 	self.buyingList = {}
@@ -148,18 +177,20 @@ end
 
 function PANEL:Setup(entity)
 	self.entity = entity
-	self:SetTitle(entity:GetDisplayName())
-	self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..entity.money..")" or ""))
+	self:SetTitle("")
+	self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..entity.money..")" or ""), true, true)
 
 	self.vendorBuy:SetEnabled(!self:GetReadOnly())
 	self.vendorSell:SetEnabled(!self:GetReadOnly())
+	self.vendorBuy:SetEnabled(false)
+	self.vendorSell:SetEnabled(false)
 
 	for k, _ in SortedPairs(entity.items) do
 		self:addItem(k, "selling")
 	end
 
 	for _, v in SortedPairs(LocalPlayer():GetCharacter():GetInventory():GetItems()) do
-		self:addItem(v.uniqueID, "buying")
+		self:addItem(v.class, "buying")
 	end
 end
 
@@ -182,9 +213,9 @@ function PANEL:Think()
 	end
 
 	if ((self.nextUpdate or 0) < CurTime()) then
-		self:SetTitle(self.entity:GetDisplayName())
-		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ax.currencies:Format(entity.money, "default")..")" or ""))
-		self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")")
+		self:SetTitle("")
+		self.vendorName:SetText(entity:GetDisplayName()..(entity.money and " ("..ax.currencies:Format(entity.money, "default")..")" or ""), true, true)
+		self.ourName:SetText(L"you".." ("..ax.currencies:Format(LocalPlayer():GetCharacter():GetMoney(), "default")..")", true, true)
 
 		self.nextUpdate = CurTime() + 0.25
 	end
@@ -192,39 +223,103 @@ end
 
 function PANEL:OnItemSelected(panel)
 	local price = self.entity:GetPrice(panel.item, panel.isLocal)
+	local previous = panel.isLocal and self.activeBuy or self.activeSell
+
+	if (IsValid(previous) and previous != panel) then
+		previous:SetSelected(false)
+	end
+
+	panel:SetSelected(true)
 
 	if (panel.isLocal) then
-		self.vendorBuy:SetText(L"sell".." ("..ax.currencies:Format(price, "default")..")")
+		self.vendorBuy:SetEnabled(!self:GetReadOnly())
+		self.vendorBuy:SetText(L"vendorSellItem".." ("..ax.currencies:Format(price, "default")..")", true, true)
 	else
-		self.vendorSell:SetText(L"purchase".." ("..ax.currencies:Format(price, "default")..")")
+		self.vendorSell:SetEnabled(!self:GetReadOnly())
+		self.vendorSell:SetText(L"vendorPurchase".." ("..ax.currencies:Format(price, "default")..")", true, true)
 	end
 end
 
-vgui.Register("axVendor", PANEL, "DFrame")
+vgui.Register("axVendor", PANEL, "ax.frame")
 
 PANEL = {}
 
 function PANEL:Init()
-	self:SetTall(36)
-	self:DockMargin(4, 4, 4, 0)
+	local padding = ax.util:ScreenScale(1)
+	local iconInset = ax.util:ScreenScale(1.5)
+	local rowHeight = ax.util:ScreenScaleH(28)
 
-	self.icon = self:Add("SpawnIcon")
-	self.icon:SetPos(2, 2)
-	self.icon:SetSize(32, 32)
-	self.icon:SetModel("models/error.mdl")
+	self:SetTall(rowHeight)
+	self:DockMargin(ax.util:ScreenScale(4), ax.util:ScreenScaleH(4), ax.util:ScreenScale(4), 0)
 
-	self.name = self:Add("DLabel")
+	self.icon = self:Add("EditablePanel")
+	self.icon:Dock(LEFT)
+	self.icon:SetMouseInputEnabled(false)
+	self.icon:DockMargin(0, padding, ax.util:ScreenScale(6), padding)
+	self.icon:SetWide(rowHeight)
+
+	self.iconImage = self.icon:Add("DModelPanel")
+	self.iconImage:Dock(FILL)
+	self.iconImage:DockMargin(iconInset, iconInset, iconInset, iconInset)
+	self.iconImage:SetMouseInputEnabled(false)
+	self.iconImage:SetFOV(35)
+	self.iconImage.Paint = function(this, width, height)
+		if (!IsValid(this.Entity)) then
+			return
+		end
+
+		local x, y = this:LocalToScreen(0, 0)
+		local cameraPosition = this:GetCamPos()
+		local lookAt = this:GetLookAt()
+
+		cam.Start3D(cameraPosition, (lookAt - cameraPosition):Angle(), this:GetFOV(), x, y, width, height, 5, 4096)
+			cam.IgnoreZ(true)
+		this:DrawModel()
+			cam.IgnoreZ(false)
+		cam.End3D()
+
+		this:LayoutEntity(this.Entity)
+	end
+
+	self.count = self:Add("ax.text")
+	self.count:Dock(RIGHT)
+	self.count:SetWide(ax.util:ScreenScale(32))
+	self.count:SetFont("ax.small")
+	self.count:SetTextColor(color_white)
+	self.count:SetContentAlignment(5)
+	self.count:SetText("", true, true)
+	self.count:SetMouseInputEnabled(false)
+
+	self.name = self:Add("ax.text")
 	self.name:Dock(FILL)
-	self.name:DockMargin(42, 0, 0, 0)
+	self.name:DockMargin(0, 0, padding, 0)
 	self.name:SetFont("ax.small")
 	self.name:SetTextColor(color_white)
 	self.name:SetExpensiveShadow(1, Color(0, 0, 0, 200))
+	self.name:SetMouseInputEnabled(false)
 
-	self.click = self:Add("DButton")
+	self.selected = false
+	self.Paint = function(this, width, height)
+		if (!IsValid(this.click) or (!this.selected and !this.click:IsHovered())) then
+			return
+		end
+
+		local glass = ax.theme:GetGlass()
+		local fill = this.selected and glass.buttonActive or glass.buttonHover
+		surface.SetDrawColor(ColorAlpha(fill, this.selected and 190 or 100))
+		surface.DrawRect(0, 0, width, height)
+	end
+
+	self.click = self:Add("ax.button")
 	self.click:Dock(FILL)
 	self.click:SetText("")
 	self.click.Paint = function() end
 	self.click.DoClick = function(this)
+		local previous = self.isLocal and ax.gui.vendor.activeBuy or ax.gui.vendor.activeSell
+		if (IsValid(previous) and previous != self) then
+			previous:SetSelected(false)
+		end
+
 		if (self.isLocal) then
 			ax.gui.vendor.activeBuy = self
 		else
@@ -233,6 +328,11 @@ function PANEL:Init()
 
 		ax.gui.vendor:OnItemSelected(self)
 	end
+end
+
+function PANEL:SetSelected(selected)
+	self.selected = selected == true
+	self:InvalidateLayout(true)
 end
 
 function PANEL:SetCallback(callback)
@@ -247,21 +347,54 @@ function PANEL:Setup(uniqueID)
 
 	if (item) then
 		self.item = uniqueID
-		self.icon:SetModel(item:GetModel(), item:GetSkin())
+		self.iconImage:SetModel(item:GetModel())
+		self.iconImage.Entity:SetSkin(item:GetSkin())
+
+		local mins, maxs = self.iconImage.Entity:GetRenderBounds()
+		local center = (mins + maxs) * 0.5
+		local distance = math.max((maxs - mins):Length() * 0.8, 10)
+
+		self.iconImage:SetLookAt(center)
+		self.iconImage:SetCamPos(center + Vector(distance, distance, distance * 0.5))
 		self.name:SetText(item:GetName())
 		self.itemName = item:GetName()
-
 	end
+end
+
+function PANEL:UpdateCount()
+	local entity = ax.gui.vendor and ax.gui.vendor.entity
+
+	if (!IsValid(entity) or !self.item) then
+		return
+	end
+
+	if (!self.isLocal) then
+		local current, max = entity:GetStock(self.item)
+		self.count:SetText(max and (current .. "/" .. max) or L"vendorUnlimited", true, true)
+
+		return current
+	end
+
+	local character = LocalPlayer():GetCharacter()
+
+	if (!character) then
+		return
+	end
+
+	local count = character:GetInventory():GetItemCount(self.item)
+	self.count:SetText("x" .. count, true, true)
+
+	return count
 end
 
 function PANEL:Think()
 	if ((self.nextUpdate or 0) < CurTime()) then
 		local entity = ax.gui.vendor.entity
 
-		if (entity and self.isLocal) then
-			local count = LocalPlayer():GetCharacter():GetInventory():GetItemCount(self.item)
+		if (IsValid(entity)) then
+			local count = self:UpdateCount()
 
-			if (count == 0) then
+			if (self.isLocal and count == 0) then
 				self:Remove()
 			end
 		end
@@ -270,14 +403,5 @@ function PANEL:Think()
 	end
 end
 
-function PANEL:Paint(w, h)
-	if (ax.gui.vendor.activeBuy == self or ax.gui.vendor.activeSell == self) then
-		surface.SetDrawColor(255,255,255)
-	else
-		surface.SetDrawColor(0, 0, 0, 100)
-	end
 
-	surface.DrawRect(0, 0, w, h)
-end
-
-vgui.Register("axVendorItem", PANEL, "DPanel")
+vgui.Register("axVendorItem", PANEL, "EditablePanel")

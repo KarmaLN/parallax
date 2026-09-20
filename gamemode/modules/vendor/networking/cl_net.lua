@@ -18,7 +18,8 @@ VENDOR_TEXT = {}
 			return
 		end
 
-		entity.money = net.ReadUInt(16)
+		local hasMoney = net.ReadBool()
+		entity.money = hasMoney and net.ReadUInt(16) or nil
 		entity.items = net.ReadTable()
 		entity.scale = net.ReadFloat()
 
@@ -34,7 +35,8 @@ VENDOR_TEXT = {}
 			return
 		end
 
-		entity.money = net.ReadUInt(16)
+		local hasMoney = net.ReadBool()
+		entity.money = hasMoney and net.ReadUInt(16) or nil
 		entity.items = net.ReadTable()
 		entity.scale = net.ReadFloat()
 		entity.messages = net.ReadTable()
@@ -145,7 +147,9 @@ VENDOR_TEXT = {}
 		elseif (key == "stockMax" or key == "stock") then
 			local current, max = entity:GetStock(data)
 
-			editor.lines[data]:SetValue(5, current.."/"..max)
+			if (IsValid(editor.lines[data])) then
+				editor.lines[data]:SetValue(5, current.."/"..max)
+			end
 		elseif (key == "faction") then
 			local uniqueID = data[1]
 			local state = data[2]
@@ -189,8 +193,8 @@ VENDOR_TEXT = {}
 			return
 		end
 
-		local value = net.ReadUInt(16)
-		value = value != -1 and value or nil
+		local hasMoney = net.ReadBool()
+		local value = hasMoney and net.ReadUInt(16) or nil
 
 		entity.money = value
 

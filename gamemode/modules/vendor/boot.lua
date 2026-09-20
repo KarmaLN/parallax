@@ -8,6 +8,8 @@ MODULE.name = "Vendors"
 MODULE.author = "KarmaLN"
 MODULE.description = "Adds vendors that can be placed on the map."
 
+ax.util:Include("parallax/gamemode/modules/vendor/localization/sh_english.lua", "shared")
+
 CAMI.RegisterPrivilege({
 	Name = "Parallax - Manage Vendors",
 	MinAccess = "admin"
@@ -45,6 +47,25 @@ local function GetVendorDataKey()
 end
 
 if (SERVER) then
+	function MODULE:Notify(client, phrase, notificationType, ...)
+		local language = client:GetLanguage()
+		local translations = ax.localization.langs[language]
+
+		if (!istable(translations) and isstring(language)) then
+			translations = ax.localization.langs[string.Explode("-", language)[1]]
+		end
+
+		translations = istable(translations) and translations or ax.localization.langs.en or {}
+		local message = translations[phrase] or phrase
+		local arguments = {...}
+
+		if (#arguments > 0) then
+			message = string.format(message, unpack(arguments))
+		end
+
+		client:Notify(message, notificationType)
+	end
+
 	function MODULE:GetData()
 		local data = ax.data:Get(GetVendorDataKey(), {}, DATA_OPTIONS)
 		if ( !istable(data) ) then
@@ -198,7 +219,11 @@ properties.Add("vendor_edit", {
 
 		net.Start("axVendorEditor")
 			net.WriteEntity(entity)
-			net.WriteUInt(entity.money or 0, 16)
+		local hasMoney = entity.money != nil
+			net.WriteBool(hasMoney)
+			if (hasMoney) then
+				net.WriteUInt(math.min(entity.money, 65535), 16)
+			end
 			net.WriteTable(itemsTable)
 			net.WriteFloat(entity.scale or 0.5)
 			net.WriteTable(entity.messages)

@@ -65,22 +65,25 @@ function ENT:GetAxisAlignedBoundingBox()
 end
 
 function ENT:CanAccess(client)
-	local bAccess = false
-	local uniqueID = ax.faction:Get(client:Team()).uniqueID
+	local character = client:GetCharacter()
+	local faction = ax.faction:Get(client:Team())
+	local uniqueID = faction and faction.id
+
+	if (!character or !uniqueID) then
+		return false
+	end
 
 	if (self.factions and !table.IsEmpty(self.factions)) then
-		if (self.factions[uniqueID]) then
-			bAccess = true
-		else
+		if (!self.factions[uniqueID]) then
 			return false
 		end
 	end
 
-	if (bAccess and self.classes and !table.IsEmpty(self.classes)) then
-		local class = ax.class:Get(client:GetCharacter():GetClass())
-		local classID = class and class.uniqueID
+	if (self.classes and !table.IsEmpty(self.classes)) then
+		local class = ax.class:Get(character:GetClass())
+		local classID = class and class.id
 
-		if (classID and !self.classes[classID]) then
+		if (!classID or !self.classes[classID]) then
 			return false
 		end
 	end
@@ -117,7 +120,7 @@ function ENT:CanSellToPlayer(client, uniqueID)
 		return false
 	end
 
-	if (data[VENDOR_MODE] == VENDOR_BUYONLY) then
+	if (data[VENDOR_MODE] == VENDOR_SELLONLY) then
 		return false
 	end
 
@@ -125,7 +128,8 @@ function ENT:CanSellToPlayer(client, uniqueID)
 		return false
 	end
 
-	if (data[VENDOR_STOCK] and data[VENDOR_STOCK] < 1) then
+	local stock, maxStock = self:GetStock(uniqueID)
+	if (maxStock and stock < 1) then
 		return false
 	end
 
@@ -139,11 +143,11 @@ function ENT:CanBuyFromPlayer(client, uniqueID)
 		return false
 	end
 
-	if (data[VENDOR_MODE] != VENDOR_SELLONLY) then
+	if (data[VENDOR_MODE] == VENDOR_SELLONLY) then
 		return false
 	end
 
-	if (!self:HasMoney(data[VENDOR_PRICE] or ax.item.stored[uniqueID].price or 0)) then
+	if (!self:HasMoney(self:GetPrice(uniqueID, true))) then
 		return false
 	end
 
@@ -197,7 +201,7 @@ if (SERVER) then
 			if (self.messages[VENDOR_NOTRADE]) then
 				activator:ChatPrint(self:GetDisplayName()..": "..self.messages[VENDOR_NOTRADE])
 			else
-				activator:NotifyLocalized("vendorNoTrade")
+				MODULE:Notify(activator, "vendorNoTrade", "error")
 			end
 
 			return
@@ -218,7 +222,7 @@ if (SERVER) then
 			end
 		end
 
-		self.scale = self.scale or 0.5
+		self.scale = math.max(tonumber(self.scale) or 0.5, 0)
 
 		activator.axVendor = self
 
@@ -226,7 +230,11 @@ if (SERVER) then
 
 		net.Start("axVendorOpen")
 			net.WriteEntity(self)
-			net.WriteUInt(self.money or 0, 16)
+			local hasMoney = self.money != nil
+			net.WriteBool(hasMoney)
+			if (hasMoney) then
+				net.WriteUInt(math.min(self.money, 65535), 16)
+			end
 			net.WriteTable(items)
 			net.WriteFloat(self.scale or 0.5)
 		net.Send(activator)
@@ -237,10 +245,13 @@ if (SERVER) then
 	end
 
 	function ENT:SetMoney(value)
-		self.money = value
+		self.money = value and math.max(math.Round(value), 0) or nil
 
 		net.Start("axVendorMoney")
-			net.WriteUInt(value and value or -1, 16)
+			net.WriteBool(self.money != nil)
+			if (self.money != nil) then
+				net.WriteUInt(math.min(self.money, 65535), 16)
+			end
 		net.Send(self.receivers)
 	end
 
@@ -257,16 +268,18 @@ if (SERVER) then
 	end
 
 	function ENT:SetStock(uniqueID, value)
-		if (!self.items[uniqueID][VENDOR_MAXSTOCK]) then
+		local item = self.items[uniqueID]
+
+		if (!item or !item[VENDOR_MAXSTOCK]) then
 			return
 		end
 
-		self.items[uniqueID] = self.items[uniqueID] or {}
-		self.items[uniqueID][VENDOR_STOCK] = math.min(value, self.items[uniqueID][VENDOR_MAXSTOCK])
+		local stock = math.Clamp(math.Round(value or 0), 0, item[VENDOR_MAXSTOCK])
+		item[VENDOR_STOCK] = stock
 
 		net.Start("axVendorStock")
 			net.WriteString(uniqueID)
-			net.WriteUInt(value, 16)
+			net.WriteUInt(stock, 16)
 		net.Send(self.receivers)
 	end
 
