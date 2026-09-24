@@ -5,6 +5,11 @@ ITEM.model = Model("models/props_c17/suitcase_passenger_physics.mdl")
 ITEM.weight = 1
 ITEM.isOutfit = true
 
+-- Exclusivity group for this outfit. Equipping an outfit unequips any other
+-- equipped outfit sharing the same category (e.g. "head", "torso").
+-- Leave nil to allow this outfit to be equipped alongside anything.
+ITEM.outfitCategory = nil
+
 -- Bodygroups this outfit controls.
 --
 -- You can use bodygroup names:
@@ -28,9 +33,29 @@ ITEM.bodyGroups = {}
 -- ITEM.outfitModel = "models/player/example.mdl"
 ITEM.outfitModel = nil
 
+-- Optional model substring replacement(s), applied to the player's current
+-- model instead of a full replacement. Accepts a single pair:
+-- ITEM.replacements = {"male", "female"}
+-- or multiple pairs:
+-- ITEM.replacements = {
+--     {"male", "female"},
+--     {"group01", "group02"}
+-- }
+ITEM.replacements = nil
+
+-- Optional skin index applied while this outfit is equipped.
+ITEM.newSkin = nil
+
 ----------------------------------------------------------------
 -- Model
 ----------------------------------------------------------------
+
+-- Suffixes per-item data keys with the outfit category so outfits in
+-- different categories don't clobber each other's saved state.
+function ITEM:GetOutfitDataKey(key)
+    return key .. (self.outfitCategory or "")
+end
+
 
 function ITEM:SetOutfitModel(model)
     if not isstring(model) or model == "" then
@@ -41,25 +66,65 @@ function ITEM:SetOutfitModel(model)
 end
 
 
+-- Resolves the model to apply for this outfit. Override this to compute a
+-- replacement model dynamically instead of using `outfitModel`/`replacements`.
+function ITEM:GetReplacementModel(client)
+    if self.outfitModel then
+        return self.outfitModel
+    end
+
+    if not self.replacements then
+        return nil
+    end
+
+    local currentModel = client:GetModel()
+
+    if istable(self.replacements) then
+        -- Single pair: {"from", "to"}
+        if isstring(self.replacements[1]) and isstring(self.replacements[2]) then
+            return currentModel:gsub(self.replacements[1], self.replacements[2])
+        end
+
+        -- Multiple pairs: {{"from", "to"}, {"from", "to"}}
+        local result = currentModel
+
+        for _, pair in ipairs(self.replacements) do
+            result = result:gsub(pair[1], pair[2])
+        end
+
+        return result
+    elseif isstring(self.replacements) then
+        return self.replacements
+    end
+
+    return nil
+end
+
+
 function ITEM:ApplyOutfitModel(client, character)
-    if not self.outfitModel then
+    local replacement = self:GetReplacementModel(client)
+
+    if not replacement then
         return
     end
 
+    local dataKey = self:GetOutfitDataKey("outfitOriginalModel")
+
     -- Only save the original model once.
-    if not character:GetData("outfitOriginalModel") then
+    if not character:GetData(dataKey) then
         character:SetData(
-            "outfitOriginalModel",
+            dataKey,
             client:GetModel()
         )
     end
 
-    client:SetModel(self.outfitModel)
+    client:SetModel(replacement)
 end
 
 
 function ITEM:RestoreOutfitModel(client, character)
-    local originalModel = character:GetData("outfitOriginalModel")
+    local dataKey = self:GetOutfitDataKey("outfitOriginalModel")
+    local originalModel = character:GetData(dataKey)
 
     if not originalModel then
         return
@@ -68,9 +133,74 @@ function ITEM:RestoreOutfitModel(client, character)
     client:SetModel(originalModel)
 
     character:SetData(
-        "outfitOriginalModel",
+        dataKey,
         nil
     )
+end
+
+
+----------------------------------------------------------------
+-- Skin
+----------------------------------------------------------------
+
+function ITEM:ApplyOutfitSkin(client, character)
+    if not isnumber(self.newSkin) then
+        return
+    end
+
+    local dataKey = self:GetOutfitDataKey("outfitOriginalSkin")
+
+    if not character:GetData(dataKey) then
+        character:SetData(dataKey, client:GetSkin())
+    end
+
+    client:SetSkin(self.newSkin)
+end
+
+
+function ITEM:RestoreOutfitSkin(client, character)
+    if not isnumber(self.newSkin) then
+        return
+    end
+
+    local dataKey = self:GetOutfitDataKey("outfitOriginalSkin")
+    local originalSkin = character:GetData(dataKey)
+
+    client:SetSkin(originalSkin or 0)
+    character:SetData(dataKey, nil)
+end
+
+
+----------------------------------------------------------------
+-- Sub-materials
+----------------------------------------------------------------
+
+function ITEM:ApplyOutfitSubMaterials(client, character)
+    local materials = self:GetData("submaterials")
+
+    if not istable(materials) then
+        return
+    end
+
+    for index, material in pairs(materials) do
+        client:SetSubMaterial(index - 1, material)
+    end
+end
+
+
+function ITEM:ResetOutfitSubMaterials(client, character)
+    local materials = {}
+
+    for index = 1, #client:GetMaterials() do
+        if client:GetSubMaterial(index - 1) ~= "" then
+            materials[index] = client:GetSubMaterial(index - 1)
+            client:SetSubMaterial(index - 1, "")
+        end
+    end
+
+    if not table.IsEmpty(materials) then
+        self:SetData("submaterials", materials)
+    end
 end
 
 
@@ -137,16 +267,34 @@ function ITEM:AddOutfit(client)
     end
 
     ------------------------------------------------------------
+    -- Unequip conflicting outfits in the same category
+    ------------------------------------------------------------
+
+    self:UnequipConflictingOutfits(client)
+
+    ------------------------------------------------------------
     -- Apply model
     ------------------------------------------------------------
 
     self:ApplyOutfitModel(client, character)
 
     ------------------------------------------------------------
+    -- Apply skin
+    ------------------------------------------------------------
+
+    self:ApplyOutfitSkin(client, character)
+
+    ------------------------------------------------------------
     -- Apply bodygroups
     ------------------------------------------------------------
 
     self:ApplyBodyGroups(client, character)
+
+    ------------------------------------------------------------
+    -- Apply saved sub-materials
+    ------------------------------------------------------------
+
+    self:ApplyOutfitSubMaterials(client, character)
 
     ------------------------------------------------------------
     -- Mark equipped
@@ -184,16 +332,36 @@ function ITEM:RemoveOutfit(client)
     end
 
     ------------------------------------------------------------
+    -- Save and reset this outfit's sub-materials
+    ------------------------------------------------------------
+
+    self:ResetOutfitSubMaterials(client, character)
+
+    ------------------------------------------------------------
     -- Reset this outfit's bodygroups
     ------------------------------------------------------------
 
     self:ResetBodyGroups(client, character)
 
     ------------------------------------------------------------
+    -- Restore original skin
+    ------------------------------------------------------------
+
+    self:RestoreOutfitSkin(client, character)
+
+    ------------------------------------------------------------
     -- Restore original model
     ------------------------------------------------------------
 
     self:RestoreOutfitModel(client, character)
+
+    ------------------------------------------------------------
+    -- Unequip any outfits attached to this one
+    ------------------------------------------------------------
+
+    for id in pairs(self:GetData("outfitAttachments", {})) do
+        self:RemoveAttachment(id, client)
+    end
 
     ------------------------------------------------------------
     -- Mark unequipped
@@ -208,6 +376,59 @@ function ITEM:RemoveOutfit(client)
     self:OnUnequipped(client)
 
     return true
+end
+
+
+----------------------------------------------------------------
+-- Category exclusivity
+----------------------------------------------------------------
+
+-- Unequips any other equipped outfit sharing this outfit's category.
+function ITEM:UnequipConflictingOutfits(client)
+    if not self.outfitCategory then
+        return
+    end
+
+    local character = client:GetCharacter()
+    local inventory = character and character:GetInventory()
+
+    if not inventory then
+        return
+    end
+
+    for _, invItem in pairs(inventory:GetItems()) do
+        if invItem ~= self and invItem.isOutfit and invItem.outfitCategory == self.outfitCategory
+            and invItem:GetData("equipped", false) then
+            invItem:RemoveOutfit(client)
+        end
+    end
+end
+
+
+----------------------------------------------------------------
+-- Attachments
+----------------------------------------------------------------
+
+-- Marks another outfit item as dependent on this one - it is automatically
+-- unequipped when this outfit is unequipped or dropped.
+function ITEM:AddAttachment(itemID)
+    local attachments = self:GetData("outfitAttachments", {})
+    attachments[itemID] = true
+
+    self:SetData("outfitAttachments", attachments)
+end
+
+
+function ITEM:RemoveAttachment(itemID, client)
+    local attachments = self:GetData("outfitAttachments", {})
+    local attachedItem = ax.item.instances[itemID]
+
+    if attachedItem and attachedItem:GetData("equipped", false) then
+        attachedItem:RemoveOutfit(client)
+    end
+
+    attachments[itemID] = nil
+    self:SetData("outfitAttachments", attachments)
 end
 
 
