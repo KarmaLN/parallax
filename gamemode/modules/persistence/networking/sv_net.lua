@@ -38,36 +38,5 @@ end)
 ax.net:Hook("ax.persistence.respawn", function(client, uid)
     if not IsValid(client) or not client:IsAdmin() then return end
 
-    local data = ax.persistence.data[uid]
-    if not data then return end
-
-    local oldEnt = ax.persistence.stored[uid]
-    if IsValid(oldEnt) then
-        oldEnt:Remove()
-    end
-
-    local ent = ents.Create(data.class or "prop_physics")
-    if not IsValid(ent) then return end
-
-    ent:SetModel(data.model or "")
-    ent:SetPos(data.pos or vector_origin)
-    ent:SetAngles(data.ang or angle_zero)
-
-    ent:Spawn()
-    ent:Activate()
-
-    ent:SetNWBool("Persistent", true)
-
-    local phys = ent:GetPhysicsObject()
-    if IsValid(phys) then
-        phys:EnableMotion(data.movable ~= false)
-
-        if data.movable == false then
-            phys:Sleep()
-        else
-            phys:Wake()
-        end
-    end
-
-    ax.persistence.stored[uid] = ent
+    ax.persistence:RespawnByUID(uid)
 end)
