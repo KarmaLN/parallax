@@ -13,6 +13,62 @@ ITEM.capacityBonus = 10
 -- Leave nil to allow this bag to be equipped alongside anything.
 ITEM.bagCategory = "bag"
 
+-- Bodygroups this bag controls while equipped.
+--
+-- You can use bodygroup names:
+-- ITEM.bodyGroups = {
+--     ["Backpack"] = 1
+-- }
+--
+-- Or bodygroup indexes:
+-- ITEM.bodyGroups = {
+--     [2] = 1
+-- }
+ITEM.bodyGroups = {}
+
+----------------------------------------------------------------
+-- Bodygroups
+----------------------------------------------------------------
+
+function ITEM:ApplyBodyGroups(client, character)
+    if not istable(self.bodyGroups) then
+        return
+    end
+
+    for group, value in pairs(self.bodyGroups) do
+        local index = group
+
+        -- Allow bodygroup names.
+        if isstring(group) then
+            index = client:FindBodygroupByName(group)
+        end
+
+        if isnumber(index) and index >= 0 then
+            character:SetBodygroup(index, value)
+        end
+    end
+end
+
+
+function ITEM:ResetBodyGroups(client, character)
+    if not istable(self.bodyGroups) then
+        return
+    end
+
+    for group, _ in pairs(self.bodyGroups) do
+        local index = group
+
+        if isstring(group) then
+            index = client:FindBodygroupByName(group)
+        end
+
+        if isnumber(index) and index >= 0 then
+            character:SetBodygroup(index, 0)
+        end
+    end
+end
+
+
 ----------------------------------------------------------------
 -- Capacity
 ----------------------------------------------------------------
@@ -120,6 +176,8 @@ function ITEM:EquipBag(client)
         return false
     end
 
+    self:ApplyBodyGroups(client, client:GetCharacter())
+
     self:SetData("equipped", true)
     self:OnEquipped(client)
 
@@ -141,6 +199,8 @@ function ITEM:UnequipBag(client)
     end
 
     self:RemoveCapacity(client)
+    self:ResetBodyGroups(client, client:GetCharacter())
+
     self:SetData("equipped", false)
     self:OnUnequipped(client)
 
