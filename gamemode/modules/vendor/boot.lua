@@ -177,6 +177,10 @@ properties.Add("vendor_edit", {
             return false
         end
 
+        if !entity:GetClass() or entity:GetClass() != "ax_vendor" then
+            return false
+        end
+
         return CAMI.PlayerHasAccess(client, "Parallax - Manage Vendors", nil)
     end,
 
