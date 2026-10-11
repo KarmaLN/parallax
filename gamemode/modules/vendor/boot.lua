@@ -97,6 +97,8 @@ if (SERVER) then
     end
 
     function MODULE:LoadData()
+        self.loadingVendors = true
+        
         for _, value in ipairs(self:GetData() or {}) do
             local entity = ents.Create("ax_vendor")
 
@@ -132,10 +134,23 @@ if (SERVER) then
             entity.money = value.money
             entity.scale = value.scale or 0.5
         end
+        self.loadingVendors = false
     end
 
     function MODULE:OnLoaded()
         self:LoadData()
+    end
+
+    function MODULE:OnVendorRemoved()
+        if (self.loadingVendors) then
+            return
+        end
+    
+        timer.Simple(0, function()
+            if (MODULE and MODULE.SaveData) then
+                MODULE:SaveData()
+            end
+        end)
     end
 
     function MODULE:CanVendorSellItem(client, vendor, itemID)
