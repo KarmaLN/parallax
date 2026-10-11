@@ -296,6 +296,12 @@ if (SERVER) then
 
 		self:AddStock(uniqueID, -(value or 1))
 	end
+
+    function ENT:OnRemove()
+        if (MODULE and MODULE.OnVendorRemoved) then
+            MODULE:OnVendorRemoved()
+        end
+    end
 else
 	function ENT:CreateBubble()
 		self.bubble = ClientsideModel("models/extras/info_speech.mdl", RENDERGROUP_OPAQUE)
@@ -339,10 +345,6 @@ else
 		if (IsValid(self.bubble)) then
 			self.bubble:Remove()
 		end
-        
-        if (MODULE and MODULE.OnVendorRemoved) then
-            MODULE:OnVendorRemoved()
-        end
 	end
 
 	ENT.PopulateEntityInfo = true
