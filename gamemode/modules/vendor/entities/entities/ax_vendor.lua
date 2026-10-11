@@ -298,9 +298,11 @@ if (SERVER) then
 	end
 
     function ENT:OnRemove()
-        if (MODULE and MODULE.OnVendorRemoved) then
-            MODULE:OnVendorRemoved()
-        end
+        timer.Simple(0, function()
+            if (MODULE and MODULE.OnVendorRemoved) then
+                MODULE:OnVendorRemoved()
+            end
+        end)
     end
 else
 	function ENT:CreateBubble()
