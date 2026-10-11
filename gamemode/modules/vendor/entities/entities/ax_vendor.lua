@@ -339,6 +339,10 @@ else
 		if (IsValid(self.bubble)) then
 			self.bubble:Remove()
 		end
+        
+        if (MODULE and MODULE.OnVendorRemoved) then
+            MODULE:OnVendorRemoved()
+        end
 	end
 
 	ENT.PopulateEntityInfo = true
