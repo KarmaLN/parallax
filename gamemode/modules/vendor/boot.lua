@@ -145,7 +145,7 @@ if (SERVER) then
         if (self.loadingVendors) then
             return
         end
-    
+
         timer.Simple(0, function()
             if (MODULE and MODULE.SaveData) then
                 MODULE:SaveData()
