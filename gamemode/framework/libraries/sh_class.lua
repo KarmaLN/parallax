@@ -506,11 +506,8 @@ function ax.class:Apply(client, classTable)
     if ( inventory ) then
         for _, uniqueID in ipairs(classTable.items or {}) do
             if ( isstring(uniqueID) and !inventory:HasItem(uniqueID) ) then
-                local item = inventory:Add(uniqueID)
-
-                if ( item ) then
-                    item:SetData("classItem", true)
-                end
+                -- Add is async and doesn't return the item, so flag it via initial data
+                inventory:Add(uniqueID, 1, { classItem = true })
             end
         end
     end
