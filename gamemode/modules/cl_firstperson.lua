@@ -67,7 +67,7 @@ local function IsGUIOpen()
         end
 
         if IsValid(v) then
-            if guiBlacklist[v] then continue end
+            if guiBlacklist[k] or guiBlacklist["ax.gui." .. tostring(k)] then continue end
 
             if v:IsVisible() and v:GetAlpha() > 0 then
                 return true
@@ -112,6 +112,15 @@ local function SetHeadHidden(ply, hide)
     end
 end
 
+-- Restore the head on (re)load so a Lua refresh never leaves a stale hidden state
+do
+    local lp = LocalPlayer()
+    if IsValid(lp) then
+        lp._HeadHidden = nil
+        SetHeadHidden(lp, false)
+    end
+end
+
 -- =========================
 -- Should enable bodycam
 -- =========================
@@ -122,7 +131,7 @@ local blacklistedWeapons = {
 
 local function ShouldImmerse(client)
     if not client:Alive() or client:InVehicle() then return false end
-    if ax.option:Get("thirdperson") then return false end
+    if ax.option:Get("thirdperson", false) then return false end
     if not ax.option:Get("bodycam", true) then return false end
     if client:GetViewEntity() ~= client then return false end
     if client:InVehicle() then return false end
@@ -152,7 +161,7 @@ ax.viewstack:RegisterModifier("camera", function(client, patch)
     if camWeight < 0.01 then return end
 
     local attID = client:LookupAttachment("eyes")
-    local att = attID > 0 and client:GetAttachment(attID)
+    local att = attID and attID > 0 and client:GetAttachment(attID)
 
     local eyePos = att and att.Pos or client:EyePos()
     local targetAng = client:EyeAngles()
