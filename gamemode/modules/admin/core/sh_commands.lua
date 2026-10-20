@@ -306,6 +306,38 @@ ax.command:Add("PlySetHealth", {
     end
 })
 
+ax.command:Add("PlySetBodygroup", {
+    description = "Set a bodygroup on a player's model",
+    adminOnly = true,
+    arguments = {
+        { name = "player", type = ax.type.player },
+        { name = "bodygroup", type = ax.type.number, min = 0 },
+        { name = "value", type = ax.type.number, min = 0 }
+    },
+    OnRun = function(def, client, target, bodygroup, value)
+        if ( bodygroup != math.floor(bodygroup) or value != math.floor(value) ) then
+            return "Bodygroup and value must be whole numbers"
+        end
+
+        if ( bodygroup >= target:GetNumBodyGroups() ) then
+            return "Invalid bodygroup index"
+        end
+
+        if ( value >= target:GetBodygroupCount(bodygroup) ) then
+            return "Invalid bodygroup value"
+        end
+
+        local character = target:GetCharacter()
+        if ( character ) then
+            character:SetBodygroup(bodygroup, value)
+        else
+            target:SetBodygroup(bodygroup, value)
+        end
+
+        return Format("Set %s's bodygroup %d to %d", target:Nick(), bodygroup, value)
+    end
+})
+
 ax.command:Add("PlySetArmor", {
     description = "Set a player's armor",
     adminOnly = true,
