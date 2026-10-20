@@ -306,36 +306,28 @@ ax.command:Add("PlySetHealth", {
     end
 })
 
-ax.command:Add("PlySetBodygroup", {
-    description = "Set a bodygroup on a player's model",
-    adminOnly = true,
-    arguments = {
-        { name = "player", type = ax.type.player },
-        { name = "bodygroup", type = ax.type.number, min = 0 },
+ax.command:Add("CharSetBodygroup", {
+	description = "@cmdCharSetBodygroup",
+	adminOnly = true,
+	arguments = {
+        { name = "name", type = ax.type.character },
+        { name = "bodygroup", type = ax.type.string, min = 0 },
         { name = "value", type = ax.type.number, min = 0 }
-    },
-    OnRun = function(def, client, target, bodygroup, value)
-        if ( bodygroup != math.floor(bodygroup) or value != math.floor(value) ) then
-            return "Bodygroup and value must be whole numbers"
-        end
+	},
+	OnRun = function(def, client, name, bodygroup, value)
+		local index = name:GetPlayer():FindBodygroupByName(bodygroup)
 
-        if ( bodygroup >= target:GetNumBodyGroups() ) then
-            return "Invalid bodygroup index"
-        end
+		if (index > -1) then
+			if (value and value < 1) then
+				value = nil
+			end
 
-        if ( value >= target:GetBodygroupCount(bodygroup) ) then
-            return "Invalid bodygroup value"
-        end
+			name:SetBodyGroup(index, value)
 
-        local character = target:GetCharacter()
-        if ( character ) then
-            character:SetBodygroup(bodygroup, value)
-        else
-            target:SetBodygroup(bodygroup, value)
-        end
-
-        return Format("Set %s's bodygroup %d to %d", target:Nick(), bodygroup, value)
-    end
+		else
+			return "@invalidArg", 2
+		end
+	end
 })
 
 ax.command:Add("PlySetArmor", {
