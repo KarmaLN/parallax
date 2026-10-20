@@ -139,6 +139,13 @@ function ax.class:Include(directory, timeFilter)
 
             CLASS = { id = uniqueID, index = index }
                 ax.util:Include(directory .. "/" .. fileName, "shared")
+
+                -- The file only used ax.class:Register, so don't overwrite the registered classes with an empty CLASS.
+                if ( table.Count(CLASS) <= 2 ) then
+                    CLASS = nil
+                    continue
+                end
+            
                 ax.util:PrintDebug(color_success, "CLASS \"" .. (CLASS.Name or CLASS.name or CLASS.id) .. "\" initialised successfully.")
 
                 if ( isnumber(CLASS.faction) ) then
