@@ -322,7 +322,7 @@ ax.command:Add("CharSetBodygroup", {
 				value = nil
 			end
 
-			target:GetCharacter():SetBodyGroup(index, value)
+			target:GetCharacter():SetBodygroup(index, value)
 
 		else
 			return "@invalidArg", 2
