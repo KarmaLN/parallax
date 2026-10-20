@@ -310,19 +310,19 @@ ax.command:Add("CharSetBodygroup", {
 	description = "@cmdCharSetBodygroup",
 	adminOnly = true,
 	arguments = {
-        { name = "name", type = ax.type.character },
+        { name = "target", type = ax.type.player },
         { name = "bodygroup", type = ax.type.string, min = 0 },
         { name = "value", type = ax.type.number, min = 0 }
 	},
-	OnRun = function(def, client, name, bodygroup, value)
-		local index = name:GetPlayer():FindBodygroupByName(bodygroup)
+	OnRun = function(def, client, target, bodygroup, value)
+		local index = target:FindBodygroupByName(bodygroup)
 
 		if (index > -1) then
 			if (value and value < 1) then
 				value = nil
 			end
 
-			name:SetBodyGroup(index, value)
+			target:GetCharacter():SetBodyGroup(index, value)
 
 		else
 			return "@invalidArg", 2
