@@ -262,6 +262,16 @@ function ax.class:GetPlayers(class, exclude)
     return players
 end
 
+--- Get the number of players currently in a class.
+---@realm shared
+---@param class string|number|table The class ID, index, name, or class table
+---@param exclude? Player Optional player to leave out of the count
+---@return number # Number of players in the class
+---@usage local count = ax.class:GetCount("security")
+function ax.class:GetCount(class, exclude)
+    return #self:GetPlayers(class, exclude)
+end
+
 --- Check if a player can become a specific class. Runs through hook validation and class-specific CanBecome functions.
 ---@realm shared
 ---@param class string|number The class ID, index, or name
