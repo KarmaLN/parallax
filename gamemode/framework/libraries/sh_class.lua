@@ -145,7 +145,7 @@ function ax.class:Include(directory, timeFilter)
                     CLASS = nil
                     continue
                 end
-            
+
                 ax.util:PrintDebug(color_success, "CLASS \"" .. (CLASS.Name or CLASS.name or CLASS.id) .. "\" initialised successfully.")
 
                 if ( isnumber(CLASS.faction) ) then
@@ -204,49 +204,6 @@ function ax.class:Get(identifier)
     return nil
 end
 
---- Check if a player can become a specific class. Runs through hook validation and class-specific CanBecome functions.
----@realm shared
----@param class string|number The class ID, index, or name
----@param client Player The player entity to check permissions for
----@return boolean # True if allowed, false if not.
----@return string|nil # Error message if denied.
----@usage local canBecome, reason = ax.class:CanBecome("security", player)
-function ax.class:CanBecome(class, client)
-    local classTable = self:Get(class)
-
-    if ( !classTable ) then
-        return false, "Invalid class."
-    end
-
-    local char = client:GetCharacter()
-
-    if ( !char ) then
-        return false, "No character loaded"
-    end
-
-    if ( !char:HasClassWhitelist(classTable) ) then
-        return false, "You are not whitelisted for this class"
-    end
-
-    local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
-
-    if ( try == false and isstring(catch) and #catch > 0 ) then
-        client:Notify(catch, "error")
-        return false, catch
-    end
-
-    if ( isfunction(classTable.CanBecome) ) then
-        try, catch = classTable:CanBecome(client)
-
-        if ( try == false and isstring(catch) and #catch > 0 ) then
-            client:Notify(catch, "error")
-            return false, catch
-        end
-    end
-
-    return true, nil
-end
-
 --- Get all loaded class instances. Returns the loaded class list, optionally filtered by faction or fuzzy name.
 ---@realm shared
 ---@param filter? table Optional filter (`faction`, `name`)
@@ -281,6 +238,77 @@ function ax.class:GetAll(filter)
     return self.instances
 end
 
+--- Get all players whose active character is currently in a class.
+---@realm shared
+---@param class string|number|table The class ID, index, name, or class table
+---@param exclude? Player Optional player to leave out of the result
+---@return table # Array of players in the class
+---@usage local members = ax.class:GetPlayers("security")
+function ax.class:GetPlayers(class, exclude)
+    local classTable = istable(class) and class or self:Get(class)
+    if ( !classTable ) then return {} end
+
+    local players = {}
+
+    for _, ply in player.Iterator() do
+        if ( ply == exclude ) then continue end
+
+        local character = ply:GetCharacter()
+        if ( character and character:GetClass() == classTable.index ) then
+            players[#players + 1] = ply
+        end
+    end
+
+    return players
+end
+
+--- Check if a player can become a specific class. Runs through hook validation and class-specific CanBecome functions.
+---@realm shared
+---@param class string|number The class ID, index, or name
+---@param client Player The player entity to check permissions for
+---@return boolean # True if allowed, false if not.
+---@return string|nil # Error message if denied.
+---@usage local canBecome, reason = ax.class:CanBecome("security", player)
+function ax.class:CanBecome(class, client)
+    local classTable = self:Get(class)
+
+    if ( !classTable ) then
+        return false, "Invalid class."
+    end
+
+    local char = client:GetCharacter()
+
+    if ( !char ) then
+        return false, "No character loaded"
+    end
+
+    if ( !char:HasClassWhitelist(classTable) ) then
+        return false, "You are not whitelisted for this class"
+    end
+
+    if (classTable.limit and classTable.limit > 0 and #self:GetAll({ name = classTable.name }) >= classTable.limit) then
+        return false, "Class limit reached."
+    end
+
+    local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
+
+    if ( try == false and isstring(catch) and #catch > 0 ) then
+        client:Notify(catch, "error")
+        return false, catch
+    end
+
+    if ( isfunction(classTable.CanBecome) ) then
+        try, catch = classTable:CanBecome(client)
+
+        if ( try == false and isstring(catch) and #catch > 0 ) then
+            client:Notify(catch, "error")
+            return false, catch
+        end
+    end
+
+    return true, nil
+end
+
 --- Check if a class exists and is valid. Validates class existence by attempting to retrieve it.
 ---@realm shared
 ---@param class string|number The class identifier to validate
@@ -311,162 +339,6 @@ function ax.class:HasAny(class, classes)
     end
 
     return false
-end
-
-local CHAR = ax.character.meta
-
-if ( SERVER ) then
-    function CHAR:AddClassWhitelist(class)
-        local classTable = ax.class:Get(class)
-        if ( !classTable ) then return false end
-
-        local data = self:GetData("classWhitelist", {})
-
-        if ( data[classTable.id] ) then
-            return false
-        end
-
-        data[classTable.id] = true
-
-        self:SetData("classWhitelist", data)
-        self:Save()
-
-        return true
-    end
-
-    function CHAR:RemoveClassWhitelist(class)
-        local classTable = ax.class:Get(class)
-        if ( !classTable ) then return false end
-
-        local data = self:GetData("classWhitelist", {})
-
-        if ( !data[classTable.id] ) then
-            return false
-        end
-
-        data[classTable.id] = nil
-
-        self:SetData("classWhitelist", data)
-        self:Save()
-
-        return true
-    end
-end
-
-function CHAR:HasClassWhitelist(class)
-    local classTable = istable(class) and class or ax.class:Get(class)
-
-    if ( !classTable or !classTable.id ) then
-        return false
-    end
-
-    if ( classTable.isWhitelist ) then
-        local data = self:GetData("classWhitelist", {})
-
-        return data[classTable.id] == true
-    end
-
-    return true
-end
-
-----------------------------------------------------------------------
--- Class Whitelist
-----------------------------------------------------------------------
-
-local CHAR = ax.character.meta
-
-if ( SERVER ) then
-    function CHAR:AddClassWhitelist(class)
-        local classTable = ax.class:Get(class)
-        if ( !classTable ) then return false end
-
-        local data = self:GetData("classWhitelist", {})
-
-        if ( data[classTable.id] ) then
-            return false
-        end
-
-        data[classTable.id] = true
-
-        self:SetData("classWhitelist", data)
-        self:Save()
-
-        return true
-    end
-
-    function CHAR:RemoveClassWhitelist(class)
-        local classTable = ax.class:Get(class)
-        if ( !classTable ) then return false end
-
-        local data = self:GetData("classWhitelist", {})
-
-        if ( !data[classTable.id] ) then
-            return false
-        end
-
-        data[classTable.id] = nil
-
-        self:SetData("classWhitelist", data)
-        self:Save()
-
-        return true
-    end
-end
-
-function CHAR:HasClassWhitelist(class)
-    local classTable = istable(class) and class or ax.class:Get(class)
-
-    if ( !classTable or !classTable.id ) then
-        return false
-    end
-
-    if ( classTable.isWhitelist ) then
-        local data = self:GetData("classWhitelist", {})
-
-        return data[classTable.id] == true
-    end
-
-    return true
-end
-
-----------------------------------------------------------------------
--- Can Become
-----------------------------------------------------------------------
-
-function ax.class:CanBecome(class, client)
-    local classTable = self:Get(class)
-
-    if ( !classTable ) then
-        return false, "Invalid class."
-    end
-
-    local char = client:GetCharacter()
-
-    if ( !char ) then
-        return false, "No character loaded"
-    end
-
-    if ( !char:HasClassWhitelist(classTable) ) then
-        return false, "You are not whitelisted for this class"
-    end
-
-    local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
-
-    if ( try == false and isstring(catch) and #catch > 0 ) then
-        client:Notify(catch, "error")
-        return false, catch
-    end
-
-    if ( isfunction(classTable.CanBecome) ) then
-        try, catch = classTable:CanBecome(client)
-
-        if ( try == false and isstring(catch) and #catch > 0 ) then
-            client:Notify(catch, "error")
-            return false, catch
-        end
-    end
-
-    return true, nil
 end
 
 --- Apply the standard properties, weapons and items of a class to a player.
@@ -552,4 +424,95 @@ function ax.class:Remove(client, class)
             client:StripWeapon(weapon)
         end
     end
+end
+
+local CHAR = ax.character.meta
+
+if ( SERVER ) then
+    function CHAR:AddClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = true
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+
+    function CHAR:RemoveClassWhitelist(class)
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return false end
+
+        local data = self:GetData("classWhitelist", {})
+
+        if ( !data[classTable.id] ) then
+            return false
+        end
+
+        data[classTable.id] = nil
+
+        self:SetData("classWhitelist", data)
+        self:Save()
+
+        return true
+    end
+end
+
+function CHAR:HasClassWhitelist(class)
+    local classTable = istable(class) and class or ax.class:Get(class)
+
+    if ( !classTable or !classTable.id ) then
+        return false
+    end
+
+    if ( classTable.isWhitelist ) then
+        local data = self:GetData("classWhitelist", {})
+
+        return data[classTable.id] == true
+    end
+
+    return true
+end
+
+
+function GM:PlayerLoadedCharacter(client, character, lastCharacter)
+    if ( !ax.util:IsValidPlayer(client) ) then return end
+    if ( !character ) then return end
+
+    local classTable = ax.class:Get(character:GetClass())
+    if ( !classTable ) then return end
+
+    -- Count other players already in this class to see if it is full
+    local isFull = false
+    local limit = tonumber(classTable.limit) or 0
+
+    if ( limit > 0 ) then
+        isFull = #ax.class:GetPlayers(classTable, client) >= limit
+    end
+
+    if ( isFull ) then
+        local defaultClass
+
+        for _, candidate in ipairs(ax.class.instances) do
+            if ( candidate.faction == classTable.faction and candidate.isDefault ) then
+                defaultClass = candidate
+                break
+            end
+        end
+
+        if ( !defaultClass or defaultClass.index == classTable.index ) then return end
+
+        character:SetClass(defaultClass.index)
+        classTable = defaultClass
+    end
+
+    ax.class:Apply(client, classTable)
 end
