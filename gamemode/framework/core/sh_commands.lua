@@ -594,46 +594,34 @@ ax.command:Add("BecomeClass", {
     },
     OnRun = function(def, client, class)
         local character = client:GetCharacter()
-        if ( !character ) then
-            return "No character loaded."
-        end
+        if ( !character ) then return end
 
-        local classes = ax.class:GetAll({
-            faction = character:GetFaction()
-        })
+        local classTable = ax.class:Get(class)
+        if ( !classTable ) then return "Invalid class." end
 
-        if ( !classes or #classes == 0 ) then
-            return "You do not have any classes available to become."
-        end
+        local classes = ax.class:GetAll({faction = character:GetFaction()})
+        if ( classes[1] == nil ) then return "You do not have any classes available to become." end
 
-        local selectedClass
-
-        for _, classTable in ipairs(classes) do
-            if (
-                ax.util:FindString(classTable.name or "", class) or
-                ax.util:FindString(classTable.id or "", class)
-            ) then
+        local selectedClass = nil
+        for i = 1, #classes do
+            local classTable = classes[i]
+            if ( ax.util:FindString(classTable.name, class) or ax.util:FindString(classTable.id, class) ) then
                 selectedClass = classTable
                 break
             end
         end
 
-        if ( !selectedClass ) then
-            return "Invalid class."
-        end
+        if ( !selectedClass ) then return "Invalid class." end
 
-        local canBecome, reason = ax.class:CanBecome(selectedClass, client)
-
-        if ( !canBecome ) then
-            return reason or "You cannot become this class."
+        if ( !ax.class:CanBecome(selectedClass.index, client) ) then
+            return "You cannot become this class."
         end
 
         character:SetClass(selectedClass.index)
 
-        return "You have become the \"" .. (selectedClass.name or selectedClass.id) .. "\" class."
+        return "You have become the \"" .. selectedClass.name .. "\" class."
     end
 })
-
 
 ax.command:Add("MapRestart", {
     description = "Restart the current map.",
