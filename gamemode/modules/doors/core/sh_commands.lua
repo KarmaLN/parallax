@@ -13,6 +13,54 @@ local function GetLinkedDoors(door)
     return doors
 end
 
+ax.command:Add("DoorSetKeycardLevel", {
+    description = "Set the keycard level required for the door you are looking at (0 to remove).",
+    adminOnly = true,
+    bAllowConsole = false,
+    arguments = {
+        { name = "level", type = ax.type.number },
+    },
+    OnRun = function(def, client, level)
+        local trace = client:GetEyeTrace()
+        local target = trace.Entity
+
+        if ( !trace.Hit or !IsValid(target) ) then
+            client:Notify(ax.localization:GetPhrase("door.invalid"), ax.notification.enums.TYPE_ERROR)
+            return
+        end
+
+        -- Doors, buttons and other map entities (e.g. rotating props) can all be gated
+        local bIsDoor = target:IsDoor()
+        if ( !bIsDoor and target:MapCreationID() == -1 ) then
+            client:Notify(ax.localization:GetPhrase("door.invalid"), ax.notification.enums.TYPE_ERROR)
+            return
+        end
+
+        level = math.max(math.floor(level or 0), 0)
+
+        local keycardData = ax.data:Get("doors_keycards", {}, {
+            scope = "map",
+            force = true,
+        })
+
+        local targets = bIsDoor and GetLinkedDoors(target) or { target }
+        for i = 1, #targets do
+            local ent = targets[i]
+            ent:SetRelay("keycardLevel", level)
+            keycardData[ent:MapCreationID()] = level > 0 and level or nil
+        end
+
+        ax.data:Set("doors_keycards", keycardData, { scope = "map" })
+
+        local name = bIsDoor and "door" or target:GetClass()
+        if ( level > 0 ) then
+            return "Set " .. name .. " keycard level to " .. level .. "."
+        end
+
+        return "Removed the " .. name .. "'s keycard requirement."
+    end
+})
+
 ax.command:Add("DoorBuy", {
     description = "Purchase a door.",
     OnRun = function(def, client)
