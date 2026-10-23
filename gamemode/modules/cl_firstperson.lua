@@ -130,16 +130,32 @@ local blacklistedWeapons = {
 }
 
 local function ShouldImmerse(client)
-    if not client:Alive() or client:InVehicle() then return false end
-    if ax.option:Get("thirdperson", false) then return false end
-    if not ax.option:Get("bodycam", true) then return false end
-    if client:GetViewEntity() ~= client then return false end
-    if client:InVehicle() then return false end
-    
+    if not client:Alive() or client:InVehicle() then
+        return false
+    end
+
+    if ax.option:Get("thirdperson", false) then
+        return false
+    end
+
+    if not ax.option:Get("bodycam", true) then
+        return false
+    end
+
+    if client:GetViewEntity() ~= client then
+        return false
+    end
+
     local wep = client:GetActiveWeapon()
-    if not IsValid(wep) or blackList[wep:GetClass()] then return false end
-	if not IsValid(wep) then return false end
-    if DISABLE_ON_ADS and client:KeyDown(IN_ATTACK2) and !blacklistedWeapons[wep:GetClass()] then
+    if not IsValid(wep) or blackList[wep:GetClass()] then
+        return false
+    end
+
+    if DISABLE_ON_ADS and client:KeyDown(IN_ATTACK2) and not blacklistedWeapons[wep:GetClass()] then
+        return false
+    end
+
+    if hook.Run("shouldFirstPerson", client) == false then
         return false
     end
 
