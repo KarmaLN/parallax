@@ -286,20 +286,27 @@ function ax.class:CanBecome(class, client)
         return false, "Invalid class."
     end
 
+    if ( !ax.util:IsValidPlayer(client) ) then
+        return false, "Invalid player."
+    end
+
     local char = client:GetCharacter()
 
     if ( !char ) then
-        return false, "No character loaded"
+        return false, "No character loaded."
     end
 
     if ( !char:HasClassWhitelist(classTable) ) then
-        return false, "You are not whitelisted for this class"
+        return false, "You are not whitelisted for this class."
     end
 
-    if ( classTable.limit and classTable.limit > 0 ) then
-        local count = self:GetCount(classTable, client)
+    local limit = tonumber(classTable.limit) or 0
 
-        if ( count >= classTable.limit and char:GetClass() ~= classTable.index ) then
+    if ( limit > 0 ) then
+        local count = self:GetCount(classTable, client)
+        local alreadyInClass = char:GetClass() == classTable.index
+
+        if ( count >= limit and !alreadyInClass ) then
             return false, "Class limit reached."
         end
     end
