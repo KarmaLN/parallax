@@ -296,8 +296,12 @@ function ax.class:CanBecome(class, client)
         return false, "You are not whitelisted for this class"
     end
 
-    if (classTable.limit and classTable.limit > 0 and #self:GetAll({ name = classTable.name }) >= classTable.limit) then
-        return false, "Class limit reached."
+    if ( classTable.limit and classTable.limit > 0 ) then
+        local count = self:GetCount(classTable, client)
+
+        if ( count >= classTable.limit and char:GetClass() ~= classTable.index ) then
+            return false, "Class limit reached."
+        end
     end
 
     local try, catch = hook.Run("CanPlayerBecomeClass", classTable, client)
@@ -500,15 +504,9 @@ function GM:PlayerLoadedCharacter(client, character, lastCharacter)
     local classTable = ax.class:Get(character:GetClass())
     if ( !classTable ) then return end
 
-    -- Count other players already in this class to see if it is full
-    local isFull = false
     local limit = tonumber(classTable.limit) or 0
 
-    if ( limit > 0 ) then
-        isFull = #ax.class:GetPlayers(classTable, client) >= limit
-    end
-
-    if ( isFull ) then
+    if ( limit > 0 and ax.class:GetCount(classTable, client) >= limit ) then
         local defaultClass
 
         for _, candidate in ipairs(ax.class.instances) do
